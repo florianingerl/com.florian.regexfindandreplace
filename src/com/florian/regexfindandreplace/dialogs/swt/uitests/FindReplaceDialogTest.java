@@ -113,6 +113,10 @@ public class FindReplaceDialogTest {
                 replaceAllButton.click();
                 
                 assertEquals("Florian is 24 years old. His sister is 2 years older. She is 26 years old!", target.getText() );
+                Mockito.verify( statusLine ).setMessage(false, "2 matches replaced", null);
+                
+                SWTBotLabel statusLabel = bot.labelWithId(ISWTBotFindConstant.FIND_KEY, "statusLabel");
+                assertEquals("2 matches replaced", statusLabel.getText() );
                 
             }
         });

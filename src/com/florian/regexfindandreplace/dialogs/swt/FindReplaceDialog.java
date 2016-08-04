@@ -1013,6 +1013,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		panel.setLayout(layout);
 
 		fStatusLabel= new Label(panel, SWT.LEFT);
+		fStatusLabel.setData(ISWTBotFindConstant.FIND_KEY, "statusLabel");
 		setGridData(fStatusLabel, SWT.FILL, true, SWT.CENTER, false);
 
 		String label= EditorMessages.FindReplace_CloseButton_label;
