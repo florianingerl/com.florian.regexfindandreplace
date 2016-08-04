@@ -88,6 +88,7 @@ import org.osgi.framework.Bundle;
 import com.florian.regexfindandreplace.IMatchEvaluator;
 import com.florian.regexfindandreplace.MatchEvaluatorFromItsFunctionBodyGenerator;
 import com.florian.regexfindandreplace.RegexUtils;
+import com.florian.regexfindandreplace.activators.ServiceLocator;
 import com.florian.regexfindandreplace.dialogs.EditorMessages;
 import com.sun.tools.javac.code.Attribute.Array;
 
@@ -404,6 +405,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 				updateFindAndReplaceHistory();
 			}
 		});
+		fReplaceAllButton.setData(ISWTBotFindConstant.FIND_KEY, "replaceAllButton");
 		setGridData(fReplaceAllButton, SWT.FILL, true, SWT.FILL, false);
 
 		// Make the all the buttons the same size as the Remove Selection button.
@@ -514,8 +516,9 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	}
 
 	private void setContentAssistsEnablement(boolean enable) {
-		fContentAssistFindField.setEnabled(enable);
-		fContentAssistReplaceField.setEnabled(enable);
+		//Not for now
+		/*fContentAssistFindField.setEnabled(enable);
+		fContentAssistReplaceField.setEnabled(enable);*/
 	}
 
 	/**
@@ -691,13 +694,15 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		ComboContentAdapter contentAdapter= new ComboContentAdapter();
 		FindReplaceDocumentAdapterContentProposalProvider findProposer= new FindReplaceDocumentAdapterContentProposalProvider(true);
 		fFindField= new Combo(panel, SWT.DROP_DOWN | SWT.BORDER);
-		fContentAssistFindField= new ContentAssistCommandAdapter(
+		fFindField.setData(ISWTBotFindConstant.FIND_KEY, "findField");
+		//Not for now
+		/* fContentAssistFindField= new ContentAssistCommandAdapter(
 				fFindField,
 				contentAdapter,
 				findProposer,
 				ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
 				new char[0],
-				true);
+				true); */
 		setGridData(fFindField, SWT.FILL, true, SWT.CENTER, false);
 		addDecorationMargin(fFindField);
 		fFindField.addModifyListener(fFindModifyListener);
@@ -710,12 +715,13 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		// Create the replace content assist field
 		FindReplaceDocumentAdapterContentProposalProvider replaceProposer= new FindReplaceDocumentAdapterContentProposalProvider(false);
 		fReplaceField= new Combo(panel, SWT.DROP_DOWN | SWT.BORDER);
-		fContentAssistReplaceField= new ContentAssistCommandAdapter(
+		//Not for now
+		/*fContentAssistReplaceField= new ContentAssistCommandAdapter(
 				fReplaceField,
 				contentAdapter, replaceProposer,
 				ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
 				new char[0],
-				true);
+				true);*/
 		setGridData(fReplaceField, SWT.FILL, true, SWT.CENTER, false);
 		addDecorationMargin(fReplaceField);
 		fReplaceField.addModifyListener(listener);
@@ -728,6 +734,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		fMatchEvaluatorPanel.setVisible(false);
 
 		fUseMatchEvaluatorCheckBox = new Button(panel, SWT.CHECK);
+		fUseMatchEvaluatorCheckBox.setData(ISWTBotFindConstant.FIND_KEY,"Use a match evaluator" );
 		gd = new GridData();
 		gd.horizontalSpan = 2;
 		if(!fIsRegExInit)
@@ -764,6 +771,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			fMatchEvaluatorPanel.setLayout(new GridLayout(2, false));
 			
 			fMatchEvaluatorLabel = new Label(fMatchEvaluatorPanel, SWT.LEFT);
+			fMatchEvaluatorLabel.setData(ISWTBotFindConstant.FIND_KEY, "matchEvaluatorLabel");
 			//setTextOfMatchEvaluatorLabel();
 			DataBindingContext dbc = new DataBindingContext();
 		
@@ -798,7 +806,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			helpButton.setLayoutData(gd);
 			gd.horizontalAlignment = SWT.RIGHT;
 			gd.verticalAlignment = SWT.BOTTOM;
-			helpButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_LCL_LINKTO_HELP ));
+			helpButton.setText("Help");
+			//helpButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_LCL_LINKTO_HELP ));
 			helpButton.addSelectionListener(new SelectionAdapter(){
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -809,6 +818,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			});
 			
 			fMatchEvaluatorField = new Text(fMatchEvaluatorPanel, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+			fMatchEvaluatorField.setData(ISWTBotFindConstant.FIND_KEY, "matchEvaluatorField");
 			setGridData(fMatchEvaluatorField, SWT.FILL, true, SWT.FILL, true);
 			((GridData) fMatchEvaluatorField.getLayoutData() ).horizontalSpan = 2;
 			if(fLastMatchEvaluatorCode != null )
@@ -951,6 +961,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		storeButtonWithMnemonicInMap(fIncrementalCheckBox);
 
 		fIsRegExCheckBox= new Button(group, SWT.CHECK | SWT.LEFT);
+		fIsRegExCheckBox.setData(ISWTBotFindConstant.FIND_KEY, "isRegExSearch" );
 		fIsRegExCheckBox.setText(EditorMessages.FindReplace_RegExCheckbox_label);
 		setGridData(fIsRegExCheckBox, SWT.LEFT, false, SWT.CENTER, false);
 		((GridData)fIsRegExCheckBox.getLayoutData()).horizontalSpan= 2;
@@ -1508,19 +1519,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 * @return the status line manager of the active editor
 	 */
 	private IEditorStatusLine getStatusLineManager() {
-		IWorkbenchWindow window= PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		if (window == null)
-			return null;
-
-		IWorkbenchPage page= window.getActivePage();
-		if (page == null)
-			return null;
-
-		IEditorPart editor= page.getActiveEditor();
-		if (editor == null)
-			return null;
-
-		return (IEditorStatusLine) editor.getAdapter(IEditorStatusLine.class);
+		return  ServiceLocator.getInjector().getInstance(IEditorStatusLine.class );
 	}
 
 	/**
@@ -1590,7 +1589,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 						statusMessage(EditorMessages.FindReplace_Status_replacement_label);
 					} else {
 						String msg= EditorMessages.FindReplace_Status_replacements_label;
-						msg= NLSUtility.format(msg, String.valueOf(replaceCount));
+						msg= msg.replace("{0}", Integer.toString(replaceCount) );
 						statusMessage(msg);
 					}
 				} else {
@@ -2013,7 +2012,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 * @return the dialog settings to be used
 	 */
 	private IDialogSettings getDialogSettings() {
-		IDialogSettings settings= TextEditorPlugin.getDefault().getDialogSettings();
+		IDialogSettings settings= ServiceLocator.getInjector().getInstance(IDialogSettings.class );
 		fDialogSettings= settings.getSection(getClass().getName());
 		if (fDialogSettings == null)
 			fDialogSettings= settings.addNewSection(getClass().getName());
@@ -2026,7 +2025,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 */
 	protected IDialogSettings getDialogBoundsSettings() {
 		String sectionName= getClass().getName() + "_dialogBounds"; //$NON-NLS-1$
-		IDialogSettings settings= TextEditorPlugin.getDefault().getDialogSettings();
+		IDialogSettings settings= ServiceLocator.getInjector().getInstance(IDialogSettings.class );
 		IDialogSettings section= settings.getSection(sectionName);
 		if (section == null)
 			section= settings.addNewSection(sectionName);
@@ -2052,10 +2051,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		fCaseInit= s.getBoolean("casesensitive"); //$NON-NLS-1$
 		fWholeWordInit= s.getBoolean("wholeword"); //$NON-NLS-1$
 		fIncrementalInit= s.getBoolean("incremental"); //$NON-NLS-1$
-		fIsRegExInit= s.getBoolean("isRegEx"); //$NON-NLS-1$
+		fIsRegExInit= s.getBoolean(DialogSettingsConstants.IS_REG_EX); //$NON-NLS-1$
 		fLastMatchEvaluatorCode = s.get("lastMatchEvaluatorCode");
-		fUseMatchEvaluator = s.getBoolean("useMatchEvaluator");
-		String temp = s.get("pathToJavac");
+		fUseMatchEvaluator = s.getBoolean(DialogSettingsConstants.USE_MATCH_EVALUATOR);
+		String temp = s.get(DialogSettingsConstants.PATH_TO_JAVAC);
 		if( temp != null && temp.endsWith("javac.exe") )
 		{
 			fJavacCompiler = new File(temp);
@@ -2088,12 +2087,12 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		s.put("casesensitive", fCaseInit); //$NON-NLS-1$
 		s.put("wholeword", fWholeWordInit); //$NON-NLS-1$
 		s.put("incremental", fIncrementalInit); //$NON-NLS-1$
-		s.put("isRegEx", fIsRegExInit); //$NON-NLS-1$
+		s.put( DialogSettingsConstants.IS_REG_EX, fIsRegExInit); //$NON-NLS-1$
 		s.put("lastMatchEvaluatorCode", fLastMatchEvaluatorCode);
-		s.put("useMatchEvaluator", fUseMatchEvaluator);
+		s.put(DialogSettingsConstants.USE_MATCH_EVALUATOR, fUseMatchEvaluator);
 		if( fJavacCompiler != null && fJavacCompiler.exists() && fJavacCompiler.getName().equals("javac.exe"))
 		{
-			s.put("pathToJavac", fJavacCompiler.getAbsolutePath());
+			s.put(DialogSettingsConstants.PATH_TO_JAVAC, fJavacCompiler.getAbsolutePath());
 		}
 		List history= getFindHistory();
 		String findString= getFindString();

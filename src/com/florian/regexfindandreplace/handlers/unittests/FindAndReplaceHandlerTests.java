@@ -82,23 +82,6 @@ public class FindAndReplaceHandlerTests {
 		
 	}
 
-	@Test
-	public void isEnabled_whenTheFindReplaceTargetIsNull_ReturnsFalse() {
-		initialTarget = null;
-		initialize();
-		FindAndReplaceHandler handler = new FindAndReplaceHandler();
-
-		assertFalse(handler.isEnabled());
-	}
-
-	@Test
-	public void isEnabled_whenTheFindReplaceTargetCantPerformFind_ReturnsFalse() {
-		initialTarget = mock(IFindReplaceTarget.class);
-		when(initialTarget.canPerformFind()).thenReturn(false);
-		initialize();
-		FindAndReplaceHandler handler = new FindAndReplaceHandler();
-		assertFalse(handler.isEnabled());
-	}
 
 	@Test
 	public void activePartChanges_whenTheNewIFindReplaceTargetCantPerformAFind_theDialogsTargetGetsUpdated()

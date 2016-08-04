@@ -29,5 +29,29 @@
   description="Default shortcuts for Eclipse"
   id="default.id" />
    </extension>
+   <extension
+         id="com_florian_regexfindandreplace_product_id"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.e4.ui.workbench.swt.E4Application"
+            name="regexfindandreplace">
+         <property
+               name="appName"
+               value="regexfindandreplace">
+         </property>
+      </product>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.e4.ui.workbench.swt.E4Application"
+            name="regexfindandreplace">
+         <property
+               name="appName"
+               value="regexfindandreplace">
+         </property>
+      </product>
+   </extension>
 
 </plugin>

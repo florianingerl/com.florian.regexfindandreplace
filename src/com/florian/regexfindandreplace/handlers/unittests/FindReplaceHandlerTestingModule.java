@@ -1,9 +1,7 @@
 package com.florian.regexfindandreplace.handlers.unittests;
 
-import org.eclipse.jface.text.Assert;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.mockito.Mockito;
 
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialogProvider;
