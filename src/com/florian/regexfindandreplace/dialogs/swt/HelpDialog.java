@@ -38,14 +38,12 @@ public class HelpDialog extends Dialog {
 	    		"  </style>"+
 	    		"  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />"+
 	    		"</head><body>"+
-
-
 	    		"<!-- ======================================================== -->"+
 	    		"<!-- = Java Sourcecode to HTML automatically converted code = -->"+
 	    		"<!-- =   Java2Html Converter 5.0 [2006-02-26] by Markus Gebhard  markus@jave.de   = -->"+
 	    		"<!-- =     Further information: http://www.java2html.de     = -->"+
 	    		"<div align=\"left\" class=\"java\">"+
-	    		"<table border=\"2\" cellpadding=\"3\" cellspacing=\"0\" bgcolor=\"#ffffff\">"+
+	    		"<table border=\"0\" cellpadding=\"3\" cellspacing=\"0\" bgcolor=\"#ffffff\">"+
 	    		"  <!-- start headline -->"+
 	    		"   <tr>"+
 	    		"    <td colspan=\"2\">"+
@@ -76,7 +74,7 @@ public class HelpDialog extends Dialog {
 	    		"</table>"+
 	    		"</div>"+
 	    		"<div align=\"left\" class=\"java\">"+
-	    		"<table border=\"2\" cellpadding=\"3\" cellspacing=\"0\" bgcolor=\"#ffffff\">"+
+	    		"<table border=\"0\" cellpadding=\"3\" cellspacing=\"0\" bgcolor=\"#ffffff\">"+
 	    		"  <!-- start headline -->"+
 	    		"   <tr>"+
 	    		"    <td colspan=\"2\">"+
@@ -99,9 +97,9 @@ public class HelpDialog extends Dialog {
 	    		"<font color=\"#808080\">05</font>&nbsp;<font color=\"#ffffff\"></font><br />"+
 	    		"<font color=\"#808080\">06</font>&nbsp;<font color=\"#7f0055\"><b>public&nbsp;class&nbsp;</b></font><font color=\"#000000\">RegexUtils&nbsp;</font><font color=\"#000000\">{</font><br />"+
 	    		"<font color=\"#808080\">07</font>&nbsp;<font color=\"#ffffff\"></font><br />"+
-	    		"<font color=\"#808080\">08</font>&nbsp;<font color=\"#ffffff\">&nbsp;&nbsp;</font><font color=\"#7f0055\"><b>public&nbsp;static&nbsp;</b></font><font color=\"#000000\">String&nbsp;replaceAll</font><font color=\"#000000\">(</font><font color=\"#000000\">String&nbsp;input,&nbsp;String&nbsp;regex,&nbsp;IMatchEvaluator&nbsp;evaluator</font><font color=\"#000000\">)&nbsp;</font><font color=\"#7f0055\"><b>throws&nbsp;</b></font><font color=\"#000000\">Exception</font><br />"+
+	    		"<font color=\"#808080\">08</font>&nbsp;<font color=\"#ffffff\">&nbsp;&nbsp;</font><font color=\"#7f0055\"><b>public&nbsp;static&nbsp;</b></font><font color=\"#000000\">String&nbsp;replaceAll</font><font color=\"#000000\">(</font><font color=\"#000000\">String&nbsp;input,&nbsp;String&nbsp;regex,&nbsp;IMatchEvaluator&nbsp;evaluator,&nbsp;</font><font color=\"#7f0055\"><b>int&nbsp;</b></font><font color=\"#000000\">flags&nbsp;</font><font color=\"#000000\">)&nbsp;</font><font color=\"#7f0055\"><b>throws&nbsp;</b></font><font color=\"#000000\">Exception</font><br />"+
 	    		"<font color=\"#808080\">09</font>&nbsp;<font color=\"#ffffff\">&nbsp;&nbsp;</font><font color=\"#000000\">{</font><br />"+
-	    		"<font color=\"#808080\">10</font>&nbsp;<font color=\"#ffffff\">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color=\"#000000\">Pattern&nbsp;pattern&nbsp;=&nbsp;Pattern.compile</font><font color=\"#000000\">(</font><font color=\"#000000\">regex</font><font color=\"#000000\">)</font><font color=\"#000000\">;</font><br />"+
+	    		"<font color=\"#808080\">10</font>&nbsp;<font color=\"#ffffff\">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color=\"#000000\">Pattern&nbsp;pattern&nbsp;=&nbsp;Pattern.compile</font><font color=\"#000000\">(</font><font color=\"#000000\">regex,&nbsp;flags</font><font color=\"#000000\">)</font><font color=\"#000000\">;</font><br />"+
 	    		"<font color=\"#808080\">11</font>&nbsp;<font color=\"#ffffff\">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color=\"#000000\">Matcher&nbsp;matcher&nbsp;=&nbsp;pattern.matcher</font><font color=\"#000000\">(</font><font color=\"#000000\">input</font><font color=\"#000000\">)</font><font color=\"#000000\">;</font><br />"+
 	    		"<font color=\"#808080\">12</font>&nbsp;<font color=\"#ffffff\">&nbsp;&nbsp;&nbsp;&nbsp;</font><br />"+
 	    		"<font color=\"#808080\">13</font>&nbsp;<font color=\"#ffffff\">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color=\"#7f0055\"><b>int&nbsp;</b></font><font color=\"#000000\">index&nbsp;=&nbsp;</font><font color=\"#990000\">0</font><font color=\"#000000\">;</font><br />"+
@@ -124,12 +122,9 @@ public class HelpDialog extends Dialog {
 	    		"   </tr>"+
 	    		"</table>"+
 	    		"</div>"+
-	    		
 	    		"<!-- =       END of automatically generated HTML code       = -->"+
 	    		"<!-- ======================================================== -->"+
-
-
-	    		"</body></html>"  );
+	    		"</body></html>");
 	    return container;
 	  }
 

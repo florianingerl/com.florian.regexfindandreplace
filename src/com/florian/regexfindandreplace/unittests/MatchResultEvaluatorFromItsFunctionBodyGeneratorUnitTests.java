@@ -42,7 +42,7 @@ public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 			IMatchEvaluator evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
 			
 			String input = "Florian is 23 years old. His sister is 2 years older. She is 25 years old.";
-			input = RegexUtils.replaceAll(input, "\\d{2}", evaluator);
+			input = RegexUtils.replaceAll(input, "\\d{2}", evaluator, 0);
 			
 			assertEquals("Florian is 24 years old. His sister is 2 years older. She is 26 years old.", input);
 		} catch (Exception e) {

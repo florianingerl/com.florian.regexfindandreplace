@@ -5,9 +5,9 @@ import java.util.regex.Pattern;
 
 public class RegexUtils {
 
-	public static String replaceAll(String input, String regex, IMatchEvaluator evaluator) throws Exception
+	public static String replaceAll(String input, String regex, IMatchEvaluator evaluator, int flags ) throws Exception
 	{
-		Pattern pattern = Pattern.compile(regex);
+		Pattern pattern = Pattern.compile(regex, flags);
 		Matcher matcher = pattern.matcher(input);
 		
 		int index = 0;

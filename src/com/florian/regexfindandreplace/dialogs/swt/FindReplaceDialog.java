@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.JOptionPane;
@@ -266,6 +267,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	private Text fJavacCompilerField;
 
 	private Label fMatchEvaluatorLabel;
+
+	private Label fMatchEvaluatorFlagsLabel;
+
+	private DataBindingContext	dataBindingContext = new DataBindingContext();
 	/**
 	 * Creates a new dialog with the given shell as parent.
 	 * @param parentShell the parent shell
@@ -715,6 +720,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		// Create the replace content assist field
 		FindReplaceDocumentAdapterContentProposalProvider replaceProposer= new FindReplaceDocumentAdapterContentProposalProvider(false);
 		fReplaceField= new Combo(panel, SWT.DROP_DOWN | SWT.BORDER);
+		fReplaceField.setData(ISWTBotFindConstant.FIND_KEY, "replaceField");
 		//Not for now
 		/*fContentAssistReplaceField= new ContentAssistCommandAdapter(
 				fReplaceField,
@@ -772,13 +778,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			
 			fMatchEvaluatorLabel = new Label(fMatchEvaluatorPanel, SWT.LEFT);
 			fMatchEvaluatorLabel.setData(ISWTBotFindConstant.FIND_KEY, "matchEvaluatorLabel");
-			//setTextOfMatchEvaluatorLabel();
-			DataBindingContext dbc = new DataBindingContext();
 		
-			
 			IObservableValue dbSource = WidgetProperties.text().observe(fFindField); // WidgetProperties.text(SWT.Modify).observe(fFindField);
 			IObservableValue dbTarget = WidgetProperties.text().observe(fMatchEvaluatorLabel);
-			 dbc.bindValue(dbTarget, dbSource,
+			 dataBindingContext.bindValue(dbTarget, dbSource,
 				        null,
 				        new UpdateValueStrategy(){{ setConverter( new IConverter(){
 
@@ -825,10 +828,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			{
 				fMatchEvaluatorField.setText(fLastMatchEvaluatorCode);
 			}
-			Label closingBraceLabel = new Label(fMatchEvaluatorPanel, SWT.LEFT);
-			closingBraceLabel.setText("}");
-			setGridData(closingBraceLabel, SWT.LEFT, true, SWT.CENTER, false);
-			((GridData) closingBraceLabel.getLayoutData()).horizontalSpan = 2;
+			fMatchEvaluatorFlagsLabel = new Label(fMatchEvaluatorPanel, SWT.LEFT);
+			fMatchEvaluatorFlagsLabel.setData(ISWTBotFindConstant.FIND_KEY, "matchEvaluatorFlagsLabel");
+			setGridData(fMatchEvaluatorFlagsLabel, SWT.LEFT, true, SWT.CENTER, false);
+			((GridData) fMatchEvaluatorFlagsLabel.getLayoutData()).horizontalSpan = 2;
 			
 			Composite browseJavac = createBrowseJavacPanel(fMatchEvaluatorPanel);
 			setGridData(browseJavac, SWT.FILL, true, SWT.FILL, false);
@@ -928,6 +931,30 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		fCaseCheckBox.setSelection(fCaseInit);
 		fCaseCheckBox.addSelectionListener(selectionListener);
 		storeButtonWithMnemonicInMap(fCaseCheckBox);
+		IObservableValue source = WidgetProperties.selection().observe(fCaseCheckBox);
+		IObservableValue target = WidgetProperties.text().observe(fMatchEvaluatorFlagsLabel);
+		dataBindingContext.bindValue(target, source, null, new UpdateValueStrategy(){
+			{ setConverter(new IConverter(){
+
+				@Override
+				public Object getFromType() {
+					return Boolean.class;
+				}
+
+				@Override
+				public Object getToType() {
+					return String.class;
+				}
+
+				@Override
+				public Object convert(Object fromObject) {
+					boolean b = (boolean) fromObject;
+					String flags = "}},0);";
+					if(!b) flags = "}},Pattern.CASE_INSENSITIVE);";
+					return flags;
+				}}); }
+		} );
+		
 
 		fWrapCheckBox= new Button(group, SWT.CHECK | SWT.LEFT);
 		fWrapCheckBox.setText(EditorMessages.FindReplace_WrapCheckBox_label);
@@ -1246,7 +1273,9 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 				fMatchEvaluator = generator.getMatchEvaluatorFromItsFunctionBody(fMatchEvaluatorField.getText());
 				fLastMatchEvaluatorCode = fMatchEvaluatorField.getText();
 			}
-			return RegexUtils.replaceAll(toReplace, fFindField.getText(), fMatchEvaluator);
+			int flags = 0;
+			if(! isCaseSensitiveSearch()) flags |= Pattern.CASE_INSENSITIVE;
+			return RegexUtils.replaceAll(toReplace, fFindField.getText(), fMatchEvaluator, flags);
 		}
 		return ""; //$NON-NLS-1$
 	}
@@ -2049,12 +2078,12 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		IDialogSettings s= getDialogSettings();
 
 		fWrapInit= s.get("wrap") == null || s.getBoolean("wrap"); //$NON-NLS-1$ //$NON-NLS-2$
-		fCaseInit= s.getBoolean("casesensitive"); //$NON-NLS-1$
+		fCaseInit= s.getBoolean(DialogSettingsConstants.CASE_SENSITIVE); //$NON-NLS-1$
 		fWholeWordInit= s.getBoolean("wholeword"); //$NON-NLS-1$
 		fIncrementalInit= s.getBoolean("incremental"); //$NON-NLS-1$
-		fIsRegExInit= s.getBoolean(DialogSettingsConstants.IS_REG_EX); //$NON-NLS-1$
+		fIsRegExInit= s.get(DialogSettingsConstants.IS_REG_EX) == null || s.getBoolean(DialogSettingsConstants.IS_REG_EX); //$NON-NLS-1$
 		fLastMatchEvaluatorCode = s.get("lastMatchEvaluatorCode");
-		fUseMatchEvaluator = s.getBoolean(DialogSettingsConstants.USE_MATCH_EVALUATOR);
+		fUseMatchEvaluator = s.get(DialogSettingsConstants.USE_MATCH_EVALUATOR) == null || s.getBoolean(DialogSettingsConstants.USE_MATCH_EVALUATOR);
 		String temp = s.get(DialogSettingsConstants.PATH_TO_JAVAC);
 		if( temp != null && temp.endsWith("javac.exe") )
 		{
@@ -2085,7 +2114,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		IDialogSettings s= getDialogSettings();
 
 		s.put("wrap", fWrapInit); //$NON-NLS-1$
-		s.put("casesensitive", fCaseInit); //$NON-NLS-1$
+		s.put(DialogSettingsConstants.CASE_SENSITIVE, fCaseInit); //$NON-NLS-1$
 		s.put("wholeword", fWholeWordInit); //$NON-NLS-1$
 		s.put("incremental", fIncrementalInit); //$NON-NLS-1$
 		s.put( DialogSettingsConstants.IS_REG_EX, fIsRegExInit); //$NON-NLS-1$

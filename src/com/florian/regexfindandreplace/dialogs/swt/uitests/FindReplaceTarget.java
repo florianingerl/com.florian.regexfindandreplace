@@ -42,12 +42,11 @@ public class FindReplaceTarget
 	@Override
 	public int findAndSelect(int offset, String findString, boolean searchForward, boolean caseSensitive,
 			boolean wholeWord, boolean regExSearch) {
+		if(wholeWord && regExSearch) throw new UnsupportedOperationException("wholeWord and regExSearch is not supported. See the documentation of IFindReplaceTargetExtension3");
 		if (regExSearch) {
 			int flags = 0;
 			if (!caseSensitive)
 				flags |= Pattern.CASE_INSENSITIVE;
-			if (wholeWord)
-				findString = "\\b" + findString + "\\b";
 			Pattern pattern = Pattern.compile(findString, flags);
 			lastMatcher = pattern.matcher(text);
 
@@ -89,7 +88,7 @@ public class FindReplaceTarget
 			lastMatcher.reset(this.text.substring(lastMatcher.start(), lastMatcher.end()));
 			String temp = lastMatcher.replaceFirst(replacement);
 			sb.append(temp);
-			sb.append(text.substring(lastMatcher.end()));
+			sb.append(text.substring( selection.x + selection.y ));
 			text = sb.toString();
 			selection.y = temp.length();
 		} else {
