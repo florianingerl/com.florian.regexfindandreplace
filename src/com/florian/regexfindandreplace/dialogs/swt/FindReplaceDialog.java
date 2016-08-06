@@ -13,7 +13,7 @@
 package com.florian.regexfindandreplace.dialogs.swt;
 
 import java.io.File;
-import java.io.PrintWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,13 +22,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import javax.swing.JOptionPane;
-
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.conversion.IConverter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.LegacyActionTools;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
@@ -72,26 +69,19 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
-import org.eclipse.ui.internal.texteditor.NLSUtility;
 import org.eclipse.ui.internal.texteditor.SWTUtil;
-import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.IFindReplaceTargetExtension2;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
-import org.osgi.framework.Bundle;
 
+import com.florian.regexfindandreplace.CouldNotCompileJavaSourceCodeException;
 import com.florian.regexfindandreplace.IMatchEvaluator;
+import com.florian.regexfindandreplace.MatchEvaluatorException;
 import com.florian.regexfindandreplace.MatchEvaluatorFromItsFunctionBodyGenerator;
 import com.florian.regexfindandreplace.RegexUtils;
 import com.florian.regexfindandreplace.activators.ServiceLocator;
 import com.florian.regexfindandreplace.dialogs.EditorMessages;
-import com.sun.tools.javac.code.Attribute.Array;
 
 
 /**
@@ -271,13 +261,107 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	private Label fMatchEvaluatorFlagsLabel;
 
 	private DataBindingContext	dataBindingContext = new DataBindingContext();
+	private boolean test;
+
+	private Button fCloseButton;
+
+	private Button fBackwardRadioButton;
+	public Button getfCloseButton() {
+		return fCloseButton;
+	}
+
+	public Label getfStatusLabel() {
+		return fStatusLabel;
+	}
+
+	public Button getfForwardRadioButton() {
+		return fForwardRadioButton;
+	}
+
+	public Button getfGlobalRadioButton() {
+		return fGlobalRadioButton;
+	}
+
+	public Button getfSelectedRangeRadioButton() {
+		return fSelectedRangeRadioButton;
+	}
+
+	public Button getfCaseCheckBox() {
+		return fCaseCheckBox;
+	}
+
+	public Button getfWrapCheckBox() {
+		return fWrapCheckBox;
+	}
+
+	public Button getfWholeWordCheckBox() {
+		return fWholeWordCheckBox;
+	}
+
+	public Button getfIncrementalCheckBox() {
+		return fIncrementalCheckBox;
+	}
+
+	public Button getfIsRegExCheckBox() {
+		return fIsRegExCheckBox;
+	}
+
+	public Button getfReplaceSelectionButton() {
+		return fReplaceSelectionButton;
+	}
+
+	public Button getfReplaceFindButton() {
+		return fReplaceFindButton;
+	}
+
+	public Button getfFindNextButton() {
+		return fFindNextButton;
+	}
+
+	public Button getfReplaceAllButton() {
+		return fReplaceAllButton;
+	}
+
+	public Combo getfFindField() {
+		return fFindField;
+	}
+
+	public Combo getfReplaceField() {
+		return fReplaceField;
+	}
+
+	public Composite getfMatchEvaluatorPanel() {
+		return fMatchEvaluatorPanel;
+	}
+
+	public Button getfUseMatchEvaluatorCheckBox() {
+		return fUseMatchEvaluatorCheckBox;
+	}
+
+	public Text getfMatchEvaluatorField() {
+		return fMatchEvaluatorField;
+	}
+
+	public Text getfJavacCompilerField() {
+		return fJavacCompilerField;
+	}
+
+	public Label getfMatchEvaluatorLabel() {
+		return fMatchEvaluatorLabel;
+	}
+
+	public Label getfMatchEvaluatorFlagsLabel() {
+		return fMatchEvaluatorFlagsLabel;
+	}
+
 	/**
 	 * Creates a new dialog with the given shell as parent.
 	 * @param parentShell the parent shell
 	 */
-	public FindReplaceDialog(Shell parentShell) {
+	public FindReplaceDialog(boolean test, Shell parentShell) {
 		super(parentShell);
 
+		this.test = test;
 		fParentShell= null;
 		fTarget= null;
 
@@ -521,9 +605,9 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	}
 
 	private void setContentAssistsEnablement(boolean enable) {
-		//Not for now
-		/*fContentAssistFindField.setEnabled(enable);
-		fContentAssistReplaceField.setEnabled(enable);*/
+		if(test) return;
+		fContentAssistFindField.setEnabled(enable);
+		fContentAssistReplaceField.setEnabled(enable);
 	}
 
 	/**
@@ -563,16 +647,20 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		fForwardRadioButton.addSelectionListener(selectionListener);
 		storeButtonWithMnemonicInMap(fForwardRadioButton);
 
-		Button backwardRadioButton= new Button(group, SWT.RADIO | SWT.LEFT);
-		backwardRadioButton.setText(EditorMessages.FindReplace_BackwardRadioButton_label);
-		setGridData(backwardRadioButton, SWT.LEFT, false, SWT.CENTER, false);
-		backwardRadioButton.addSelectionListener(selectionListener);
-		storeButtonWithMnemonicInMap(backwardRadioButton);
+		fBackwardRadioButton = new Button(group, SWT.RADIO | SWT.LEFT);
+		fBackwardRadioButton.setText(EditorMessages.FindReplace_BackwardRadioButton_label);
+		setGridData(fBackwardRadioButton, SWT.LEFT, false, SWT.CENTER, false);
+		fBackwardRadioButton.addSelectionListener(selectionListener);
+		storeButtonWithMnemonicInMap(fBackwardRadioButton);
 
-		backwardRadioButton.setSelection(!fForwardInit);
+		fBackwardRadioButton.setSelection(!fForwardInit);
 		fForwardRadioButton.setSelection(fForwardInit);
 
 		return panel;
+	}
+
+	public Button getfBackwardRadioButton() {
+		return fBackwardRadioButton;
 	}
 
 	/**
@@ -700,14 +788,13 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		FindReplaceDocumentAdapterContentProposalProvider findProposer= new FindReplaceDocumentAdapterContentProposalProvider(true);
 		fFindField= new Combo(panel, SWT.DROP_DOWN | SWT.BORDER);
 		fFindField.setData(ISWTBotFindConstant.FIND_KEY, "findField");
-		//Not for now
-		/* fContentAssistFindField= new ContentAssistCommandAdapter(
+		if(!test){fContentAssistFindField= new ContentAssistCommandAdapter(
 				fFindField,
 				contentAdapter,
 				findProposer,
 				ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
 				new char[0],
-				true); */
+				true);}
 		setGridData(fFindField, SWT.FILL, true, SWT.CENTER, false);
 		addDecorationMargin(fFindField);
 		fFindField.addModifyListener(fFindModifyListener);
@@ -721,13 +808,12 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		FindReplaceDocumentAdapterContentProposalProvider replaceProposer= new FindReplaceDocumentAdapterContentProposalProvider(false);
 		fReplaceField= new Combo(panel, SWT.DROP_DOWN | SWT.BORDER);
 		fReplaceField.setData(ISWTBotFindConstant.FIND_KEY, "replaceField");
-		//Not for now
-		/*fContentAssistReplaceField= new ContentAssistCommandAdapter(
+		if(!test){fContentAssistReplaceField= new ContentAssistCommandAdapter(
 				fReplaceField,
 				contentAdapter, replaceProposer,
 				ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
 				new char[0],
-				true);*/
+				true);}
 		setGridData(fReplaceField, SWT.FILL, true, SWT.CENTER, false);
 		addDecorationMargin(fReplaceField);
 		fReplaceField.addModifyListener(listener);
@@ -1044,8 +1130,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		setGridData(fStatusLabel, SWT.FILL, true, SWT.CENTER, false);
 
 		String label= EditorMessages.FindReplace_CloseButton_label;
-		Button closeButton= createButton(panel, 101, label, false);
-		setGridData(closeButton, SWT.RIGHT, false, SWT.BOTTOM, false);
+		fCloseButton = createButton(panel, 101, label, false);
+		setGridData(fCloseButton, SWT.RIGHT, false, SWT.BOTTOM, false);
 
 		return panel;
 	}
@@ -1252,8 +1338,13 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	/**
 	 * Retrieves the replacement string from the appropriate text input field and returns it.
 	 * @return the replacement string
+	 * @throws NoJavaCompilerSetException 
+	 * @throws MatchEvaluatorException 
+	 * @throws InterruptedException 
+	 * @throws IOException 
+	 * @throws CouldNotCompileJavaSourceCodeException 
 	 */
-	private String getReplaceString() throws Exception {
+	private String getReplaceString() throws NoJavaCompilerSetException, MatchEvaluatorException, CouldNotCompileJavaSourceCodeException, Exception {
 		if( !useMatchEvaluator() )
 		{
 			if (okToUse(fReplaceField)) {
@@ -1267,7 +1358,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			{
 				if(fJavacCompiler == null || !fJavacCompiler.exists() || !fJavacCompiler.getName().equals("javac.exe"))
 				{
-					throw new Exception("You have to set the java compiler!");
+					throw new NoJavaCompilerSetException();
 				}
 				MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(fJavacCompiler);
 				fMatchEvaluator = generator.getMatchEvaluatorFromItsFunctionBody(fMatchEvaluatorField.getText());

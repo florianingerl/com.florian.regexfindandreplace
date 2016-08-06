@@ -21,7 +21,7 @@
             commandId="com.florian.regexfindandreplace.commands.FindAndReplaceCommand"
             contextId="org.eclipse.ui.textEditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+F5">
+            sequence="M1+B">
       </key>
       
        <scheme
@@ -29,29 +29,7 @@
   description="Default shortcuts for Eclipse"
   id="default.id" />
    </extension>
-   <extension
-         id="com_florian_regexfindandreplace_product_id"
-         point="org.eclipse.core.runtime.products">
-      <product
-            application="org.eclipse.e4.ui.workbench.swt.E4Application"
-            name="regexfindandreplace">
-         <property
-               name="appName"
-               value="regexfindandreplace">
-         </property>
-      </product>
-   </extension>
-   <extension
-         id="product"
-         point="org.eclipse.core.runtime.products">
-      <product
-            application="org.eclipse.e4.ui.workbench.swt.E4Application"
-            name="regexfindandreplace">
-         <property
-               name="appName"
-               value="regexfindandreplace">
-         </property>
-      </product>
-   </extension>
+   
+   
 
 </plugin>

@@ -3,6 +3,8 @@ package com.florian.regexfindandreplace.dialogs.swt;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -13,7 +15,6 @@ import org.eclipse.swt.widgets.Shell;
 
 public class HelpDialog extends Dialog {
 
-	
 	public HelpDialog(Shell parentShell) {
 		super(parentShell);
 		
@@ -23,6 +24,7 @@ public class HelpDialog extends Dialog {
 	  protected Control createDialogArea(Composite parent) {
 	    Composite container = (Composite) super.createDialogArea(parent);
 	    container.setLayout(new GridLayout() );
+	    
 	    Browser browser = new Browser(container, SWT.NONE );
 	    GridData gd = new GridData();
 	    gd.grabExcessHorizontalSpace = true;
@@ -128,7 +130,8 @@ public class HelpDialog extends Dialog {
 	    return container;
 	  }
 
-	  // overriding this methods allows you to set the
+
+	// overriding this methods allows you to set the
 	  // title of the custom dialog
 	  @Override
 	  protected void configureShell(Shell newShell) {

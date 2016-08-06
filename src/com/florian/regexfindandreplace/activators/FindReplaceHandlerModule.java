@@ -25,7 +25,7 @@ public class FindReplaceHandlerModule extends AbstractModule{
 					@Override
 					public IFindReplaceDialog getDialog(Shell shell) {
 						// TODO Auto-generated method stub
-						return new FindReplaceDialog(shell);
+						return new FindReplaceDialog(false, shell);
 					}
 				});
 	}

@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class RegexUtils {
 
-	public static String replaceAll(String input, String regex, IMatchEvaluator evaluator, int flags ) throws Exception
+	public static String replaceAll(String input, String regex, IMatchEvaluator evaluator, int flags ) throws MatchEvaluatorException
 	{
 		Pattern pattern = Pattern.compile(regex, flags);
 		Matcher matcher = pattern.matcher(input);
@@ -15,8 +15,15 @@ public class RegexUtils {
 		while(matcher.find())
 		{
 			sb.append(input.substring(index, matcher.start()));
+			try
+			{
+				sb.append(evaluator.evaluateMatch(matcher.toMatchResult()));
+			}
+			catch(Exception exp)
+			{
+				throw new MatchEvaluatorException(exp);
+			}
 			index = matcher.end();
-			sb.append(evaluator.evaluateMatch(matcher.toMatchResult()));
 		}
 		sb.append(input.substring(index));
 		
