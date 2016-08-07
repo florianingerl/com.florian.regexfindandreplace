@@ -336,5 +336,144 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		Mockito.verify(statusLine).setMessage(false, "String Not Found", null);
 		
 	}
+	
+	@Test(timeout = 5000)
+	public void replaceAll_WithAMatchEvaluatorButWhenTheMatchIsJustAPosition_ShouldReplaceThisPosition()
+	{
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
+		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
+
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+
+		openFindReplaceDialog();
+		
+		FindReplaceTarget target = new FindReplaceTarget();
+		target.setText("In Deutschland leben 80000000 Menschen!Auf der Welt leben 7000000000 Menschen");
+		updateTarget(target, true, false);
+		
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText("return \".\";");
+		
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("(?<=\\d)(?=(\\d{3})+(?!\\d))");
+		
+		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
+		replaceAllButton.click();
+		
+		assertEquals("In Deutschland leben 80.000.000 Menschen!Auf der Welt leben 7.000.000.000 Menschen", target.getText() );
+		
+		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
+		assertEquals("5 matches replaced", statusLabel.getText() );
+		
+		Mockito.verify(statusLine ).setMessage(true, "5 matches replaced", null);
+	}
+	
+	@Test
+	public void replaceAll_WithANormalRegexReplaceButWhenTheMatchIsJustAPosition_ShouldReplaceThisPosition()
+	{
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
+		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
+		newSection.put(DialogSettingsConstants.USE_MATCH_EVALUATOR, false);
+		
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+
+		openFindReplaceDialog();
+		
+		FindReplaceTarget target = new FindReplaceTarget();
+		target.setText("In Deutschland leben 80000000 Menschen!Auf der Welt leben 7000000000 Menschen");
+		updateTarget(target, true, false);
+		
+		SWTBotCombo replaceField = findReplaceDialogWrapper.getfReplaceField();
+		replaceField.setText(".");
+		
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("(?<=\\d)(?=(\\d{3})+(?!\\d))");
+		
+		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
+		replaceAllButton.click();
+		
+		assertEquals("In Deutschland leben 80.000.000 Menschen!Auf der Welt leben 7.000.000.000 Menschen", target.getText() );
+		
+		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
+		assertEquals("5 matches replaced", statusLabel.getText() );
+		
+		Mockito.verify(statusLine ).setMessage(true, "5 matches replaced", null);
+	}
+	
+	@Test
+	public void replaceAll_WithAMatchEvaluatorAndALookAheadThatCapturesAGroup_ItRecognizesTheGroup()
+	{
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
+		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
+
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+
+		openFindReplaceDialog();
+		
+		FindReplaceTarget target = new FindReplaceTarget();
+		target.setText("17_{hex}+10_{bin}=27");
+		updateTarget(target, true, false);
+		
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText("if(match.group(1).equals(\"hex\")) return Integer.toHexString( Integer.parseInt(match.group() ) ); else if(match.group(1).equals(\"bin\") return Integer.toBinaryString( Integer.parseInt(match.group())); return null; ");
+		
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("\\d{2}(?=_\\{(hex|bin)\\})");
+		
+		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
+		replaceAllButton.click();
+		
+		assertEquals("11_{hex}+1010_{bin}=27", target.getText() );
+		
+		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
+		assertEquals("2 matches replaced", statusLabel.getText() );
+		
+		Mockito.verify(statusLine ).setMessage(true, "2 matches replaced", null);
+
+	}
+	
+	@Test
+	public void replaceAll_WithAMatchEvaluatorAndALookbehindThatCapturesAGroup_TheCapturedGroupIsRecognized()
+	{
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
+		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
+
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+
+		openFindReplaceDialog();
+		
+		FindReplaceTarget target = new FindReplaceTarget();
+		target.setText("x17=17 and 010=10");
+		updateTarget(target, true, false);
+		
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText("if(match.group(1).equals(\"x\")) return Integer.toHexString( Integer.parseInt(match.group() ) ); else if(match.group(1).equals(\"0\") return Integer.toOctalString( Integer.parseInt(match.group())); return null; ");
+		
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("(?<=(x|0))[1-9]\\d*");
+		
+		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
+		replaceAllButton.click();
+		
+		assertEquals("x11=17 and 012=10", target.getText() );
+		
+		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
+		assertEquals("2 matches replaced", statusLabel.getText() );
+		
+		Mockito.verify(statusLine ).setMessage(true, "2 matches replaced", null);
+	}
+	
 
 }

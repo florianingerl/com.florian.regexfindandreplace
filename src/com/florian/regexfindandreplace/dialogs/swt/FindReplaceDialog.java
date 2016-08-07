@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.conversion.IConverter;
@@ -69,6 +70,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
 import org.eclipse.ui.internal.texteditor.SWTUtil;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
@@ -76,6 +79,7 @@ import org.eclipse.ui.texteditor.IFindReplaceTargetExtension2;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 import com.florian.regexfindandreplace.CouldNotCompileJavaSourceCodeException;
+import com.florian.regexfindandreplace.ExceptionUtils;
 import com.florian.regexfindandreplace.IMatchEvaluator;
 import com.florian.regexfindandreplace.MatchEvaluatorException;
 import com.florian.regexfindandreplace.MatchEvaluatorFromItsFunctionBodyGenerator;
@@ -172,6 +176,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		
 	}
 
+	private static Logger logger = Logger.getLogger( FindReplaceDialog.class );
+	
 	/** The size of the dialogs search history. */
 	private static final int HISTORY_SIZE= 5;
 	
@@ -895,8 +901,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			helpButton.setLayoutData(gd);
 			gd.horizontalAlignment = SWT.RIGHT;
 			gd.verticalAlignment = SWT.BOTTOM;
-			helpButton.setText("Help");
-			//helpButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_LCL_LINKTO_HELP ));
+			if(test) helpButton.setText("Help");
+			else helpButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_LCL_LINKTO_HELP ));
 			helpButton.addSelectionListener(new SelectionAdapter(){
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -1759,6 +1765,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		try {
 			replaceString = getReplaceString();
 		} catch (Exception e) {
+			logger.error( ExceptionUtils.getStackTraceAsString(e) );
 			statusError(e.getMessage());
 			return false;
 		}
@@ -1866,6 +1873,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 					try {
 						replaceString = getReplaceString();
 					} catch (Exception e) {
+						logger.error(ExceptionUtils.getStackTraceAsString(e));
 						statusError(e.getMessage());
 						return replaceCount;
 					}

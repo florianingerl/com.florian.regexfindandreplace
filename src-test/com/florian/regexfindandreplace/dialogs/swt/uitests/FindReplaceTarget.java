@@ -43,7 +43,7 @@ public class FindReplaceTarget
 	public int findAndSelect(int offset, String findString, boolean searchForward, boolean caseSensitive,
 			boolean wholeWord, boolean regExSearch) {
 		if(wholeWord && regExSearch) throw new UnsupportedOperationException("wholeWord and regExSearch is not supported. See the documentation of IFindReplaceTargetExtension3");
-		if(offset == -1) offset = 0;
+		if(offset < 0) offset = 0; //Why is it called with -1??
 		if (regExSearch) {
 			int flags = 0;
 			if (!caseSensitive)
