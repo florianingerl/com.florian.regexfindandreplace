@@ -1,6 +1,8 @@
 package com.florian.regexfindandreplace.unittests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -157,7 +159,7 @@ public class RegexUtilsTest {
 	}
 
 	@Test
-	public void replaceAll_WhereAllALookbehindCapturesAGroup_PerformsTheCorrectReplacement() {
+	public void replaceAll_WhereALookbehindCapturesAGroup_PerformsTheCorrectReplacement() {
 		String input = "x17=17 and 010=10";
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 			@Override
@@ -178,6 +180,60 @@ public class RegexUtilsTest {
 		}
 		assertEquals("x11=17 and 012=10", input);
 
+	}
+
+	@Test
+	public void getReplaceStringOfFirstMatch_WhereALookbehindCapturesAGroup_GetsTheCorrectReplacementString() {
+		String input = "x17=17 and 010=10";
+		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+			@Override
+			public String evaluateMatch(MatchResult match) throws Exception {
+				if (match.group(1).equals("x")) {
+					return Integer.toHexString(Integer.parseInt(match.group()));
+				} else if (match.group(1).equals("0")) {
+					return Integer.toOctalString(Integer.parseInt(match.group()));
+				}
+				return null;
+			}
+
+		};
+		try {
+			Pattern pattern = Pattern.compile("(?<=(x|0))[1-9]\\d*", Pattern.MULTILINE);
+			String replacement = RegexUtils.getReplaceStringOfFirstMatch(input, 1, pattern, matchEvaluator);
+			assertEquals("11", replacement);
+			replacement = RegexUtils.getReplaceStringOfFirstMatch(input, 12, pattern, matchEvaluator);
+			assertEquals("12", replacement);
+		} catch (MatchEvaluatorException e) {
+			fail();
+		}
+	}
+
+	@Test
+	public void getReplaceStringOfFirstMatch_WhereAheadCapturesAGroup_GetsTheCorrectReplacementString() {
+		String input = "17_{hex}+10_{bin}=27";
+		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+
+			@Override
+			public String evaluateMatch(MatchResult match) throws Exception {
+
+				if (match.group(1).equals("hex")) {
+					return Integer.toHexString(Integer.parseInt(match.group()));
+				} else if (match.group(1).equals("bin")) {
+					return Integer.toBinaryString(Integer.parseInt(match.group()));
+				}
+				return null;
+			}
+
+		};
+		try {
+			Pattern pattern = Pattern.compile("\\d{2}(?=_\\{(hex|bin)\\})", Pattern.MULTILINE);
+			String replacement = RegexUtils.getReplaceStringOfFirstMatch(input, 0, pattern, matchEvaluator);
+			assertEquals("11", replacement);
+			replacement = RegexUtils.getReplaceStringOfFirstMatch(input, 9, pattern, matchEvaluator);
+			assertEquals("1010", replacement);
+		} catch (MatchEvaluatorException e) {
+			fail();
+		}
 	}
 
 }

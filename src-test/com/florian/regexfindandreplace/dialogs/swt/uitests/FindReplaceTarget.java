@@ -3,6 +3,7 @@ package com.florian.regexfindandreplace.dialogs.swt.uitests;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.text.IFindReplaceTarget;
 import org.eclipse.jface.text.IFindReplaceTargetExtension3;
 import org.eclipse.swt.graphics.Point;
@@ -10,6 +11,8 @@ import org.eclipse.ui.texteditor.IFindReplaceTargetExtension2;
 
 public class FindReplaceTarget
 		implements IFindReplaceTargetExtension3, IFindReplaceTargetExtension2, IFindReplaceTarget {
+
+	private static Logger logger = Logger.getLogger(FindReplaceTarget.class);
 
 	private String text = "";
 
@@ -42,18 +45,24 @@ public class FindReplaceTarget
 	@Override
 	public int findAndSelect(int offset, String findString, boolean searchForward, boolean caseSensitive,
 			boolean wholeWord, boolean regExSearch) {
-		if(wholeWord && regExSearch) throw new UnsupportedOperationException("wholeWord and regExSearch is not supported. See the documentation of IFindReplaceTargetExtension3");
-		if(offset < 0) offset = 0; //Why is it called with -1??
+		logger.debug("Offset = " + offset + " findString = " + findString);
+		if (wholeWord && regExSearch)
+			throw new UnsupportedOperationException(
+					"wholeWord and regExSearch is not supported. See the documentation of IFindReplaceTargetExtension3");
+		if (offset < 0)
+			offset = 0; // Why is it called with -1??
 		if (regExSearch) {
-			int flags = 0;
+			int flags = Pattern.MULTILINE;
 			if (!caseSensitive)
 				flags |= Pattern.CASE_INSENSITIVE;
 			Pattern pattern = Pattern.compile(findString, flags);
 			lastMatcher = pattern.matcher(text);
 
 			if (searchForward) {
-				if (!lastMatcher.find(offset))
+				if (!lastMatcher.find(offset)) {
+					logger.debug("Couldn't find regex " + findString + " starting from " + offset + " in " + text);
 					return -1;
+				}
 				selection.x = lastMatcher.start();
 				selection.y = lastMatcher.end() - lastMatcher.start();
 				return selection.x;
@@ -61,14 +70,12 @@ public class FindReplaceTarget
 				System.out.println("Backward search!");
 				int lastStart = -1, lastEnd = -1;
 				while (lastMatcher.find()) {
-					if (lastMatcher.end() <= offset)
-					{
+					if (lastMatcher.end() <= offset) {
 						lastStart = lastMatcher.start();
 						lastEnd = lastMatcher.end();
-					}
-					else if( lastMatcher.end() > offset)
+					} else if (lastMatcher.end() > offset)
 						break;
-					
+
 				}
 				System.out.println("Last start: " + lastStart + " LastEnd: " + lastEnd);
 				if (lastStart != -1) {
@@ -95,7 +102,7 @@ public class FindReplaceTarget
 			lastMatcher.reset(this.text.substring(lastMatcher.start(), lastMatcher.end()));
 			String temp = lastMatcher.replaceFirst(replacement);
 			sb.append(temp);
-			sb.append(text.substring( selection.x + selection.y ));
+			sb.append(text.substring(selection.x + selection.y));
 			text = sb.toString();
 			selection.y = temp.length();
 		} else {
@@ -116,7 +123,6 @@ public class FindReplaceTarget
 
 	@Override
 	public Point getSelection() {
-		System.out.println("Selection.x = " + selection.x + " Selection.y = " + selection.y);
 		return selection;
 	}
 

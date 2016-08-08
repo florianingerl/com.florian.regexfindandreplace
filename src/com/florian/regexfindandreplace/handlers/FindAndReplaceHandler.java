@@ -1,5 +1,6 @@
 package com.florian.regexfindandreplace.handlers;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -76,9 +77,11 @@ public class FindAndReplaceHandler extends AbstractHandler implements IUpdate {
 		 * @since 3.3
 		 */
 		public FindReplaceDialogStub(Shell shell) {
+			logger.debug("Trying to construct the FindReplaceDialog!");
 			fDialog = ((IFindReplaceDialogProvider) ServiceLocator.getInjector().getInstance(IFindReplaceDialogProvider.class)).getDialog(shell);
 			fDialog.create();
 			fDialog.getShell().addDisposeListener(this);
+			logger.debug("Successfully constructed the FindReplaceDialog!");
 		}
 
 		/**
@@ -236,6 +239,7 @@ public class FindAndReplaceHandler extends AbstractHandler implements IUpdate {
 
 	}
 
+	private static Logger logger = Logger.getLogger(FindAndReplaceHandler.class);
 	/**
 	 * Listener for disabling the dialog on shell close.
 	 * <p>
@@ -283,6 +287,7 @@ public class FindAndReplaceHandler extends AbstractHandler implements IUpdate {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		logger.debug("The handler was called!");
 		
 		if (fTarget == null)
 			return null;
@@ -319,9 +324,11 @@ public class FindAndReplaceHandler extends AbstractHandler implements IUpdate {
 			dialog = fgFindReplaceDialogStubShell.getDialog();
 		}
 
+		logger.debug("Try to open the dialog!");
 		dialog.updateTarget(fTarget, isEditable, true);
 		dialog.open();
-
+		logger.debug("The dialog got opened!");
+		
 		return null;
 	}
 

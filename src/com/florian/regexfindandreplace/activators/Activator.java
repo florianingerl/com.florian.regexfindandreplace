@@ -2,6 +2,7 @@ package com.florian.regexfindandreplace.activators;
 
 import java.net.URL;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -16,6 +17,7 @@ import com.google.inject.Injector;
  */
 public class Activator extends AbstractUIPlugin {
 
+	private static Logger logger = Logger.getLogger(Activator.class);
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.florian.examples.helloworld"; //$NON-NLS-1$
 
@@ -38,7 +40,8 @@ public class Activator extends AbstractUIPlugin {
 		
 		URL confURL = getBundle().getEntry("log4j.properties");
 		   PropertyConfigurator.configure(FileLocator.toFileURL(confURL).getFile());
-		
+		logger.debug("The Activator's start method got called!");
+		   
 		Injector injector = Guice.createInjector(new FindReplaceHandlerModule() );
 		ServiceLocator.setInjector(injector);
 	}

@@ -1,21 +1,11 @@
 package com.florian.regexfindandreplace.dialogs.swt.uitests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swtbot.swt.finder.SWTBot;
-import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCombo;
@@ -23,15 +13,13 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotLabel;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotRadio;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import com.florian.regexfindandreplace.activators.ServiceLocator;
-import com.florian.regexfindandreplace.dialogs.EditorMessages;
 import com.florian.regexfindandreplace.dialogs.swt.DialogSettingsConstants;
 import com.florian.regexfindandreplace.dialogs.swt.FindReplaceDialog;
-import com.florian.regexfindandreplace.dialogs.swt.ISWTBotFindConstant;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -63,7 +51,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		SWTBotLabel matchEvaluatorLabel = findReplaceDialogWrapper.getfMatchEvaluatorLabel();
 		assertTrue(matchEvaluatorLabel.isVisible());
 		assertTrue(findReplaceDialogWrapper.getfCaseCheckBox().isChecked());
-		assertEquals("}},0);", findReplaceDialogWrapper.getfMatchEvaluatorFlagsLabel().getText());
+		assertEquals("}},flags:0);", findReplaceDialogWrapper.getfMatchEvaluatorFlagsLabel().getText());
 
 		findField.setText("\\d{2}");
 		assertEquals(
@@ -110,7 +98,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		SWTBotCheckBox isCaseSensitive = findReplaceDialogWrapper.getfCaseCheckBox();
 		assertFalse(isCaseSensitive.isChecked());
 		SWTBotLabel matchEvaluatorFlagsLabel = findReplaceDialogWrapper.getfMatchEvaluatorFlagsLabel();
-		assertEquals("}},Pattern.CASE_INSENSITIVE);", matchEvaluatorFlagsLabel.getText());
+		assertEquals("}},flags:Pattern.CASE_INSENSITIVE);", matchEvaluatorFlagsLabel.getText());
 
 		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
 		SWTBotLabel matchEvaluatorLabel = findReplaceDialogWrapper.getfMatchEvaluatorLabel();
@@ -146,7 +134,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		ServiceLocator.setInjector(injector);
 
 		openFindReplaceDialog();
-		
+
 		FindReplaceTarget target = new FindReplaceTarget();
 		target.setText("Florian is 23 years old. His sister is 2 years older. She is 25 years old!");
 		updateTarget(target, true, false);
@@ -173,10 +161,9 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
 		assertEquals("2 matches replaced", statusLabel.getText());
 	}
-	
+
 	@Test
-	public void replaceAll_WithAMatchEvaluatorWhereAnExceptionIsThrownOnTheSecondMatch_AnAppropriateErrorMessageIsDisplayAndTheMatchIsSelected()
-	{
+	public void replaceAll_WithAMatchEvaluatorWhereAnExceptionIsThrownOnTheSecondMatch_AnAppropriateErrorMessageIsDisplayAndTheMatchIsSelected() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
@@ -187,32 +174,31 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		ServiceLocator.setInjector(injector);
 
 		openFindReplaceDialog();
-		
+
 		FindReplaceTarget target = new FindReplaceTarget();
 		target.setText("A100BHermannC200D");
 		updateTarget(target, true, false);
-		
+
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
 		matchEvaluatorField.setText("int i = Integer.parseInt( match.group() ); return \"\"+ (i+1);");
-		
+
 		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
 		findField.setText("(\\d{3}|Hermann)");
-		
+
 		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
 		replaceAllButton.click();
-		
-		assertEquals("A101BHermannC200D", target.getText() );
-		assertEquals("Hermann", target.getSelectionText() );
-		
+
+		assertEquals("A101BHermannC200D", target.getText());
+		assertEquals("Hermann", target.getSelectionText());
+
 		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
-		assertEquals("1 match replaced,\nNumberFormatException occured", statusLabel.getText() );
-		
-		Mockito.verify(statusLine ).setMessage(true, "NumberFormatException occured", null);
+		assertEquals("1 match replaced,\nNumberFormatException occured", statusLabel.getText());
+
+		Mockito.verify(statusLine).setMessage(true, "NumberFormatException occured", null);
 	}
-	
+
 	@Test
-	public void replaceFindNext_WithAMatchEvaluatorInForwardDirection_MatchesAreCorrectlyReplacedAndCorrectTextIsSelected()
-	{
+	public void replaceFindNext_WithAMatchEvaluatorInForwardDirection_MatchesAreCorrectlyReplacedAndCorrectTextIsSelected() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
@@ -223,57 +209,56 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		ServiceLocator.setInjector(injector);
 
 		openFindReplaceDialog();
-		
+
 		FindReplaceTarget target = new FindReplaceTarget();
 		target.setText("A100B200C");
 		updateTarget(target, true, false);
-		
+
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
 		matchEvaluatorField.setText("int i = Integer.parseInt( match.group() ); return \"\"+ (i+1);");
-		
+
 		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
 		findField.setText("\\d{3}");
-		
+
 		SWTBotButton findNextButton = findReplaceDialogWrapper.getfFindNextButton();
 		findNextButton.click();
-		
-		assertEquals("100", target.getSelectionText() );
-		
+
+		assertEquals("100", target.getSelectionText());
+
 		SWTBotButton replaceFindButton = findReplaceDialogWrapper.getfReplaceFindButton();
 		replaceFindButton.click();
-		
-		assertEquals("A101B200C", target.getText() );
-		assertEquals("200", target.getSelectionText() );
-		
+
+		assertEquals("A101B200C", target.getText());
+		assertEquals("200", target.getSelectionText());
+
 		SWTBotCheckBox wrapCheckBox = findReplaceDialogWrapper.getfWrapCheckBox();
-		assertTrue( wrapCheckBox.isChecked() );
-		
+		assertTrue(wrapCheckBox.isChecked());
+
 		replaceFindButton.click();
-		assertEquals("A101B201C", target.getText() );
+		assertEquals("A101B201C", target.getText());
 
 		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
-		assertEquals("Wrapped search", statusLabel.getText() );
-		
-		Mockito.verify( statusLine ).setMessage(false, "Wrapped search", null);
-		
-		assertEquals("101", target.getSelectionText() );
+		assertEquals("Wrapped search", statusLabel.getText());
+
+		Mockito.verify(statusLine).setMessage(false, "Wrapped search", null);
+
+		assertEquals("101", target.getSelectionText());
 		wrapCheckBox.deselect();
-		
+
 		target.setCaretPosition(4);
 		findNextButton.click();
-		
+
 		replaceFindButton.click();
-		assertEquals("A101B202C", target.getText() );
-		assertEquals("202", target.getSelectionText() );
-		assertEquals("String Not Found", statusLabel.getText() );
-		
+		assertEquals("A101B202C", target.getText());
+		assertEquals("202", target.getSelectionText());
+		assertEquals("String Not Found", statusLabel.getText());
+
 		Mockito.verify(statusLine).setMessage(false, "String Not Found", null);
-		
+
 	}
-	
+
 	@Test
-	public void replaceFindNext_WithAMatchEvaluatorInBackwardDirection_MatchesAreCorrectlyReplacedAndCorrectTextIsSelected()
-	{
+	public void replaceFindNext_WithAMatchEvaluatorInBackwardDirection_MatchesAreCorrectlyReplacedAndCorrectTextIsSelected() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
@@ -284,62 +269,62 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		ServiceLocator.setInjector(injector);
 
 		openFindReplaceDialog();
-		
+
 		FindReplaceTarget target = new FindReplaceTarget();
 		target.setText("A100B200C");
 		updateTarget(target, true, false);
 		target.setCaretPosition(target.getText().length());
-		
+
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
 		matchEvaluatorField.setText("int i = Integer.parseInt( match.group() ); return \"\"+ (i+1);");
-		
+
 		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
 		findField.setText("\\d{3}");
-		
+
 		SWTBotRadio fBackwardRadioButton = findReplaceDialogWrapper.getfBackwardRadioButton();
 		fBackwardRadioButton.click();
-		assertTrue( fBackwardRadioButton.isSelected() );
-		
+		assertTrue(fBackwardRadioButton.isSelected());
+
 		SWTBotButton findNextButton = findReplaceDialogWrapper.getfFindNextButton();
 		findNextButton.click();
-		
-		assertEquals("200", target.getSelectionText() );
-		
+
+		assertEquals("200", target.getSelectionText());
+
 		SWTBotButton replaceFindButton = findReplaceDialogWrapper.getfReplaceFindButton();
 		replaceFindButton.click();
-		
-		assertEquals("A100B201C", target.getText() );
-		assertEquals("100", target.getSelectionText() );
-		
+
+		assertEquals("A100B201C", target.getText());
+		assertEquals("100", target.getSelectionText());
+
 		SWTBotCheckBox wrapCheckBox = findReplaceDialogWrapper.getfWrapCheckBox();
-		assertTrue( wrapCheckBox.isChecked() );
-		
+		assertTrue(wrapCheckBox.isChecked());
+
 		replaceFindButton.click();
-		assertEquals("A101B201C", target.getText() );
+		assertEquals("A101B201C", target.getText());
 
 		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
-		assertEquals("Wrapped search", statusLabel.getText() );
-		
-		Mockito.verify( statusLine ).setMessage(false, "Wrapped search", null);
-		
-		assertEquals("201", target.getSelectionText() );
+		assertEquals("Wrapped search", statusLabel.getText());
+
+		Mockito.verify(statusLine).setMessage(false, "Wrapped search", null);
+
+		assertEquals("201", target.getSelectionText());
 		wrapCheckBox.deselect();
-		
+
 		target.setCaretPosition(4);
 		findNextButton.click();
-		
+
 		replaceFindButton.click();
-		assertEquals("A102B201C", target.getText() );
-		assertEquals("102", target.getSelectionText() );
-		assertEquals("String Not Found", statusLabel.getText() );
-		
+		assertEquals("A102B201C", target.getText());
+		assertEquals("102", target.getSelectionText());
+		assertEquals("String Not Found", statusLabel.getText());
+
 		Mockito.verify(statusLine).setMessage(false, "String Not Found", null);
-		
+
 	}
-	
+
+	@Ignore
 	@Test(timeout = 5000)
-	public void replaceAll_WithAMatchEvaluatorButWhenTheMatchIsJustAPosition_ShouldReplaceThisPosition()
-	{
+	public void replaceAll_WithAMatchEvaluatorButWhenTheMatchIsJustAPosition_ShouldReplaceThisPosition() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
@@ -349,66 +334,67 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		ServiceLocator.setInjector(injector);
 
 		openFindReplaceDialog();
-		
+
 		FindReplaceTarget target = new FindReplaceTarget();
 		target.setText("In Deutschland leben 80000000 Menschen!Auf der Welt leben 7000000000 Menschen");
 		updateTarget(target, true, false);
-		
+
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
 		matchEvaluatorField.setText("return \".\";");
-		
+
 		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
 		findField.setText("(?<=\\d)(?=(\\d{3})+(?!\\d))");
-		
+
 		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
 		replaceAllButton.click();
-		
-		assertEquals("In Deutschland leben 80.000.000 Menschen!Auf der Welt leben 7.000.000.000 Menschen", target.getText() );
-		
+
+		assertEquals("In Deutschland leben 80.000.000 Menschen!Auf der Welt leben 7.000.000.000 Menschen",
+				target.getText());
+
 		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
-		assertEquals("5 matches replaced", statusLabel.getText() );
-		
-		Mockito.verify(statusLine ).setMessage(true, "5 matches replaced", null);
+		assertEquals("5 matches replaced", statusLabel.getText());
+
+		Mockito.verify(statusLine).setMessage(true, "5 matches replaced", null);
 	}
-	
+
+	@Ignore
 	@Test
-	public void replaceAll_WithANormalRegexReplaceButWhenTheMatchIsJustAPosition_ShouldReplaceThisPosition()
-	{
+	public void replaceAll_WithANormalRegexReplaceButWhenTheMatchIsJustAPosition_ShouldReplaceThisPosition() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		newSection.put(DialogSettingsConstants.USE_MATCH_EVALUATOR, false);
-		
+
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
 		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
 		ServiceLocator.setInjector(injector);
 
 		openFindReplaceDialog();
-		
+
 		FindReplaceTarget target = new FindReplaceTarget();
 		target.setText("In Deutschland leben 80000000 Menschen!Auf der Welt leben 7000000000 Menschen");
 		updateTarget(target, true, false);
-		
+
 		SWTBotCombo replaceField = findReplaceDialogWrapper.getfReplaceField();
 		replaceField.setText(".");
-		
+
 		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
 		findField.setText("(?<=\\d)(?=(\\d{3})+(?!\\d))");
-		
+
 		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
 		replaceAllButton.click();
-		
-		assertEquals("In Deutschland leben 80.000.000 Menschen!Auf der Welt leben 7.000.000.000 Menschen", target.getText() );
-		
+
+		assertEquals("In Deutschland leben 80.000.000 Menschen!Auf der Welt leben 7.000.000.000 Menschen",
+				target.getText());
+
 		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
-		assertEquals("5 matches replaced", statusLabel.getText() );
-		
-		Mockito.verify(statusLine ).setMessage(true, "5 matches replaced", null);
+		assertEquals("5 matches replaced", statusLabel.getText());
+
+		Mockito.verify(statusLine).setMessage(true, "5 matches replaced", null);
 	}
-	
+
 	@Test
-	public void replaceAll_WithAMatchEvaluatorAndALookAheadThatCapturesAGroup_ItRecognizesTheGroup()
-	{
+	public void replaceAll_WithAMatchEvaluatorAndALookAheadThatCapturesAGroup_ItRecognizesTheGroup() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
@@ -418,32 +404,32 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		ServiceLocator.setInjector(injector);
 
 		openFindReplaceDialog();
-		
+
 		FindReplaceTarget target = new FindReplaceTarget();
 		target.setText("17_{hex}+10_{bin}=27");
 		updateTarget(target, true, false);
-		
+
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
-		matchEvaluatorField.setText("if(match.group(1).equals(\"hex\")) return Integer.toHexString( Integer.parseInt(match.group() ) ); else if(match.group(1).equals(\"bin\") return Integer.toBinaryString( Integer.parseInt(match.group())); return null; ");
-		
+		matchEvaluatorField.setText(
+				"if(match.group(1).equals(\"hex\")) return Integer.toHexString( Integer.parseInt(match.group() ) ); else if(match.group(1).equals(\"bin\")) return Integer.toBinaryString( Integer.parseInt(match.group())); return null; ");
+
 		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
 		findField.setText("\\d{2}(?=_\\{(hex|bin)\\})");
-		
+
 		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
 		replaceAllButton.click();
-		
-		assertEquals("11_{hex}+1010_{bin}=27", target.getText() );
-		
+
+		assertEquals("11_{hex}+1010_{bin}=27", target.getText());
+
 		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
-		assertEquals("2 matches replaced", statusLabel.getText() );
-		
-		Mockito.verify(statusLine ).setMessage(true, "2 matches replaced", null);
+		assertEquals("2 matches replaced", statusLabel.getText());
+
+		Mockito.verify(statusLine).setMessage(false, "2 matches replaced", null);
 
 	}
-	
+
 	@Test
-	public void replaceAll_WithAMatchEvaluatorAndALookbehindThatCapturesAGroup_TheCapturedGroupIsRecognized()
-	{
+	public void replaceAll_WithAMatchEvaluatorAndALookbehindThatCapturesAGroup_TheCapturedGroupIsRecognized() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
@@ -453,27 +439,27 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		ServiceLocator.setInjector(injector);
 
 		openFindReplaceDialog();
-		
+
 		FindReplaceTarget target = new FindReplaceTarget();
 		target.setText("x17=17 and 010=10");
 		updateTarget(target, true, false);
-		
+
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
-		matchEvaluatorField.setText("if(match.group(1).equals(\"x\")) return Integer.toHexString( Integer.parseInt(match.group() ) ); else if(match.group(1).equals(\"0\") return Integer.toOctalString( Integer.parseInt(match.group())); return null; ");
-		
+		matchEvaluatorField.setText(
+				"if(match.group(1).equals(\"x\")) return Integer.toHexString( Integer.parseInt(match.group() ) ); else if(match.group(1).equals(\"0\")) return Integer.toOctalString( Integer.parseInt(match.group())); return null; ");
+
 		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
 		findField.setText("(?<=(x|0))[1-9]\\d*");
-		
+
 		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
 		replaceAllButton.click();
-		
-		assertEquals("x11=17 and 012=10", target.getText() );
-		
+
+		assertEquals("x11=17 and 012=10", target.getText());
+
 		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
-		assertEquals("2 matches replaced", statusLabel.getText() );
-		
-		Mockito.verify(statusLine ).setMessage(true, "2 matches replaced", null);
+		assertEquals("2 matches replaced", statusLabel.getText());
+
+		Mockito.verify(statusLine).setMessage(false, "2 matches replaced", null);
 	}
-	
 
 }

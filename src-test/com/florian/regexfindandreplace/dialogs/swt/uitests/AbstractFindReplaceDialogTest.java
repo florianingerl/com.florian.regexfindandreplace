@@ -3,13 +3,13 @@ package com.florian.regexfindandreplace.dialogs.swt.uitests;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.text.IFindReplaceTarget;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.florian.regexfindandreplace.dialogs.swt.FindReplaceDialog;
-import com.florian.regexfindandreplace.dialogs.swt.HelpDialog;
 
 public abstract class AbstractFindReplaceDialogTest {
 
@@ -32,7 +31,7 @@ public abstract class AbstractFindReplaceDialogTest {
 	protected static Shell shell;
 	protected static FindReplaceDialog findReplaceDialog;
 	protected static FindReplaceDialogWrapper findReplaceDialogWrapper;
-	
+
 	private static IFindReplaceTarget fTarget;
 	private static boolean isTargetEditable;
 	private static boolean initializeFindString;
@@ -41,6 +40,8 @@ public abstract class AbstractFindReplaceDialogTest {
 
 	@BeforeClass
 	public static void setupApp() {
+		PropertyConfigurator.configure("log4j.properties");
+
 		System.out.println("BeforeClass is executed!");
 		if (uiThread == null) {
 			uiThread = new Thread(new Runnable() {
@@ -67,11 +68,11 @@ public abstract class AbstractFindReplaceDialogTest {
 									});
 									Button updateTargetButton = new Button(shell, SWT.PUSH);
 									updateTargetButton.setText("Update target");
-									updateTargetButton.addSelectionListener(new SelectionAdapter(){
+									updateTargetButton.addSelectionListener(new SelectionAdapter() {
 										@Override
-										public void widgetSelected(SelectionEvent e)
-										{
-											findReplaceDialog.updateTarget(fTarget, isTargetEditable, initializeFindString);
+										public void widgetSelected(SelectionEvent e) {
+											findReplaceDialog.updateTarget(fTarget, isTargetEditable,
+													initializeFindString);
 										}
 									});
 									shell.open();
@@ -115,15 +116,14 @@ public abstract class AbstractFindReplaceDialogTest {
 		SWTBotButton openDialogButton = bot.button("Open dialog");
 		openDialogButton.click();
 	}
-	
-	protected void updateTarget(IFindReplaceTarget target, boolean isTargetEditable, boolean initializeFindString )
-	{
+
+	protected void updateTarget(IFindReplaceTarget target, boolean isTargetEditable, boolean initializeFindString) {
 		this.fTarget = target;
 		this.isTargetEditable = isTargetEditable;
 		this.initializeFindString = initializeFindString;
 		SWTBotButton updateTargetButton = bot.button("Update target");
 		updateTargetButton.click();
-		
+
 	}
 
 	@After
