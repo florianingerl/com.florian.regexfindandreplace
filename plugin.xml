@@ -1,35 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.4"?>
 <plugin>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            id="com.florian.regexfindandreplace.commands.FindAndReplaceCommand"
-            name="FindAndReplaceCommand">
-        <defaultHandler
-               class="com.florian.regexfindandreplace.handlers.FindAndReplaceHandler">
-            <parameter
-                  name="com.florian.regexfindandreplace.parameter1"
-                  value="com.florian.regexfindandreplace.parameter1">
-            </parameter>
-         </defaultHandler>
-      </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="com.florian.regexfindandreplace.commands.FindAndReplaceCommand"
-            contextId="org.eclipse.ui.textEditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+B">
-      </key>
-      
-       <scheme
-  name="Default"
-  description="Default shortcuts for Eclipse"
-  id="default.id" />
-   </extension>
-   
-   
 
+   <extension
+         id="com.florian.regexfindandreplace.fragment"
+         point="org.eclipse.e4.workbench.model">
+      <fragment
+            uri="fragment.e4xmi">
+      </fragment>
+   </extension>
 </plugin>

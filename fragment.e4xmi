@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_GxS4UF4xEea8x7AIe1PlrQ">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_OX6rcF4xEea8x7AIe1PlrQ" featurename="commands" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="commands:Command" xmi:id="_XcrQgF4xEea8x7AIe1PlrQ" elementId="com.florian.regexfindandreplace.command.openfindreplacedialog" commandName="Open find/replace dialog" description="Opens the find/replace dialog"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_dc1cIF4xEea8x7AIe1PlrQ" featurename="handlers" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="commands:Handler" xmi:id="_ioC8wF4xEea8x7AIe1PlrQ" elementId="com.florian.regexfindandreplace.handler.openfindreplacedialog" contributionURI="bundleclass://com.florian.regexfindandreplace/com.florian.regexfindandreplace.handlers.OpenFindReplaceDialogE4Handler" command="_XcrQgF4xEea8x7AIe1PlrQ"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_ok-OMF4xEea8x7AIe1PlrQ" featurename="menuContributions" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="menu:MenuContribution" xmi:id="_1fot0F4xEea8x7AIe1PlrQ" elementId="com.florian.regexfindandreplace.menucontribution.firstmenu" positionInParent="after=additions" parentId="org.eclipse.ui.main.menu">
+      <children xsi:type="menu:HandledMenuItem" xmi:id="_FTLfEF4yEea8x7AIe1PlrQ" elementId="id.openfindreplacedialog" label="Open find/replace dialog" command="_XcrQgF4xEea8x7AIe1PlrQ"/>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="__aNm8F45Eea8x7AIe1PlrQ" featurename="keyBindings" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="commands:BindingTable" xmi:id="_WME1MF46Eea8x7AIe1PlrQ" elementId="com.florian.regexfindandreplace.bindingtable.0" bindingContext="_a69mMF46Eea8x7AIe1PlrQ">
+      <bindings xmi:id="_iEktMF46Eea8x7AIe1PlrQ" elementId="com.florian.regexfindandreplace.keybinding.openfindreplacedialog" keySequence="M1+F5" command="_XcrQgF4xEea8x7AIe1PlrQ"/>
+    </elements>
+    <elements xsi:type="commands:BindingContext" xmi:id="_a69mMF46Eea8x7AIe1PlrQ" elementId="org.eclipse.ui.contexts.window"/>
+  </fragments>
+</fragment:ModelFragments>
