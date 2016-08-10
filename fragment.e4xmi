@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="ASCII"?>
 <fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_GxS4UF4xEea8x7AIe1PlrQ">
   <imports xsi:type="commands:BindingContext" xmi:id="_vgCiAF8lEea2fbkyfFHzhA" elementId="org.eclipse.ui.contexts.dialogAndWindow"/>
+  <imports xsi:type="menu:MenuContribution" xmi:id="_8XDJUF8oEea2fbkyfFHzhA"/>
+  <imports xsi:type="menu:Menu" xmi:id="__CteUF8oEea2fbkyfFHzhA"/>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_OX6rcF4xEea8x7AIe1PlrQ" featurename="commands" parentElementId="org.eclipse.e4.legacy.ide.application">
     <elements xsi:type="commands:Command" xmi:id="_XcrQgF4xEea8x7AIe1PlrQ" elementId="com.florian.regexfindandreplace.command.openfindreplacedialog" commandName="Open find/replace dialog" description="Opens the find/replace dialog"/>
   </fragments>
@@ -9,7 +11,9 @@
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_ok-OMF4xEea8x7AIe1PlrQ" featurename="menuContributions" parentElementId="org.eclipse.e4.legacy.ide.application">
     <elements xsi:type="menu:MenuContribution" xmi:id="_1fot0F4xEea8x7AIe1PlrQ" elementId="com.florian.regexfindandreplace.menucontribution.firstmenu" positionInParent="after=additions" parentId="org.eclipse.ui.main.menu">
-      <children xsi:type="menu:HandledMenuItem" xmi:id="_FTLfEF4yEea8x7AIe1PlrQ" elementId="id.openfindreplacedialog" label="Open find/replace dialog" command="_XcrQgF4xEea8x7AIe1PlrQ"/>
+      <children xsi:type="menu:Menu" xmi:id="_eT9eQF8qEea2fbkyfFHzhA" elementId="com.florian.regexfindandreplace.menu.0" label="Find/Replace">
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_n4ERwF8qEea2fbkyfFHzhA" elementId="com.florian.regexfindandreplace.handledmenuitem.findreplacewithamatchevaluator" label="Find/Replace with a match evaluator" command="_XcrQgF4xEea8x7AIe1PlrQ"/>
+      </children>
     </elements>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="__aNm8F45Eea8x7AIe1PlrQ" featurename="bindingTables" parentElementId="org.eclipse.e4.legacy.ide.application">
