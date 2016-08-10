@@ -9,15 +9,14 @@ import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 public class MockFindReplaceDialog implements IFindReplaceDialog {
 
 	private Shell shell;
-	public IFindReplaceDialog mockDialog = Mockito.mock( IFindReplaceDialog.class );
-	
-	public MockFindReplaceDialog(Shell shell)
-	{
+	public IFindReplaceDialog mockDialog = Mockito.mock(IFindReplaceDialog.class);
+
+	public MockFindReplaceDialog(Shell shell) {
 		this.shell = shell;
-		Mockito.when( mockDialog.open() ).thenReturn( 0 );
-		Mockito.when( mockDialog.close() ).thenReturn( false );
+		Mockito.when(mockDialog.open()).thenReturn(0);
+		Mockito.when(mockDialog.close()).thenReturn(false);
 	}
-	
+
 	@Override
 	public void create() {
 		// TODO Auto-generated method stub
@@ -32,7 +31,7 @@ public class MockFindReplaceDialog implements IFindReplaceDialog {
 
 	@Override
 	public int open() {
-		
+
 		return mockDialog.open();
 	}
 
@@ -51,6 +50,7 @@ public class MockFindReplaceDialog implements IFindReplaceDialog {
 	@Override
 	public boolean close() {
 		// TODO Auto-generated method stub
+		shell.dispose();
 		return mockDialog.close();
 	}
 

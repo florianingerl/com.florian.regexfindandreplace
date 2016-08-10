@@ -238,7 +238,7 @@ public class OpenFindReplaceDialogE4Handler {
 
 	}
 
-	private static Logger logger = Logger.getLogger(FindAndReplaceHandler.class);
+	private static Logger logger = Logger.getLogger(OpenFindReplaceDialogE4Handler.class);
 	/**
 	 * Listener for disabling the dialog on shell close.
 	 * <p>
@@ -260,7 +260,6 @@ public class OpenFindReplaceDialogE4Handler {
 	private IFindReplaceTarget fTarget;
 
 	public OpenFindReplaceDialogE4Handler() {
-
 	}
 
 	@Execute
