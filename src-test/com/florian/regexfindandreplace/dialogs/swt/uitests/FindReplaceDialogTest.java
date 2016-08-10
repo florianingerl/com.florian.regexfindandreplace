@@ -291,6 +291,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		assertEquals("200", target.getSelectionText());
 
 		SWTBotButton replaceFindButton = findReplaceDialogWrapper.getfReplaceFindButton();
+		assertTrue(replaceFindButton.isEnabled());
 		replaceFindButton.click();
 
 		assertEquals("A100B201C", target.getText());
@@ -299,6 +300,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		SWTBotCheckBox wrapCheckBox = findReplaceDialogWrapper.getfWrapCheckBox();
 		assertTrue(wrapCheckBox.isChecked());
 
+		assertTrue(replaceFindButton.isEnabled());
 		replaceFindButton.click();
 		assertEquals("A101B201C", target.getText());
 
@@ -310,8 +312,11 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		assertEquals("201", target.getSelectionText());
 		wrapCheckBox.deselect();
 
+		// If its target.setCaretPosition(5), the test passes through
 		target.setCaretPosition(4);
 		findNextButton.click();
+
+		assertEquals("101", target.getSelectionText());
 
 		replaceFindButton.click();
 		assertEquals("A102B201C", target.getText());
@@ -460,6 +465,58 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		assertEquals("2 matches replaced", statusLabel.getText());
 
 		Mockito.verify(statusLine).setMessage(false, "2 matches replaced", null);
+	}
+
+	@Test
+	public void replace_WithAMatchEvaluator_ItJustWorks() {
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
+		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
+
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+
+		openFindReplaceDialog();
+
+		FindReplaceTarget target = new FindReplaceTarget();
+		target.setText("A100B200D30");
+		updateTarget(target, true, false);
+
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText("int i = Integer.parseInt( match.group() ); return \"\"+ (i*10);");
+
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("\\d+");
+
+		SWTBotButton findNextButton = findReplaceDialogWrapper.getfFindNextButton();
+		findNextButton.click();
+
+		assertEquals("100", target.getSelectionText());
+
+		SWTBotButton replaceButton = findReplaceDialogWrapper.getfReplaceSelectionButton();
+		replaceButton.click();
+
+		assertEquals("A1000B200D30", target.getText());
+		assertEquals("1000", target.getSelectionText());
+
+		matchEvaluatorField.setText("int i = Integer.parseInt( match.group() ); return \"\"+ (i*100);");
+
+		findNextButton.click();
+		assertEquals("200", target.getSelectionText());
+
+		replaceButton.click();
+		assertEquals("A1000B20000D30", target.getText());
+		assertEquals("20000", target.getSelectionText());
+
+		matchEvaluatorField.setText("int i = Integer.parseInt( match.group() ); return \"\"+ (i*1000);");
+		findNextButton.click();
+		assertEquals("30", target.getSelectionText());
+
+		replaceButton.click();
+		assertEquals("A1000B20000D30000", target.getText());
+		assertEquals("30000", target.getSelectionText());
+
 	}
 
 }

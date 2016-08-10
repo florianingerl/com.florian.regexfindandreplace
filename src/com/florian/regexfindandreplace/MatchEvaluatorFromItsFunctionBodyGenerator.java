@@ -6,15 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Enumeration;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.regex.MatchResult;
 
 public class MatchEvaluatorFromItsFunctionBodyGenerator {
@@ -30,8 +25,19 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 		this.javaCompiler = javaCompiler;
 	}
 
-	public IMatchEvaluator getMatchEvaluatorFromItsFunctionBody(String functionBody) throws CouldNotCompileJavaSourceCodeException, IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, SecurityException {
-		sourceFile = File.createTempFile("MatchEvaluator" + Integer.toString(++i) , ".java");
+	public IMatchEvaluator getMatchEvaluatorFromItsFunctionBody(String functionBody)
+			throws CouldNotCompileJavaSourceCodeException, IOException, InterruptedException, ClassNotFoundException,
+			NoSuchMethodException, SecurityException {
+		sourceFile = null;
+		try {
+			sourceFile = File.createTempFile("MatchEvaluator" + Integer.toString(++i), ".java");
+		} catch (Exception e) {
+			new File("MatchEvaluators").mkdir();
+			sourceFile = new File(new File("MatchEvaluators"), "MatchEvaluator" + Integer.toString(++i) + ".java");
+			if (!sourceFile.createNewFile())
+				throw new IOException(sourceFile.getAbsolutePath() + " already existed!");
+		}
+
 		classFile = new File(sourceFile.getParent(), sourceFile.getName().replace(".java", ".class"));
 		writeSourceFile(functionBody);
 		compileClassFile();
@@ -49,7 +55,7 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 		writer.println("}");
 		writer.close();
 	}
-	
+
 	private void compileClassFile() throws IOException, InterruptedException, CouldNotCompileJavaSourceCodeException {
 		ProcessBuilder processBuilder = new ProcessBuilder(javaCompiler.getAbsolutePath(),
 				sourceFile.getAbsolutePath());
@@ -73,13 +79,14 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 		}
 		return sb.toString();
 	}
-	
-	private IMatchEvaluator loadMatchEvaluatorFromClassFile() throws MalformedURLException, ClassNotFoundException, NoSuchMethodException, SecurityException {
+
+	private IMatchEvaluator loadMatchEvaluatorFromClassFile()
+			throws MalformedURLException, ClassNotFoundException, NoSuchMethodException, SecurityException {
 
 		URL url = new File(classFile.getAbsolutePath()).getParentFile().toURI().toURL();
 		URL[] urls = new URL[] { url };
 		ClassLoader classLoader = new URLClassLoader(urls);
-		Class c = classLoader.loadClass( getClassNameFromJavaFile(sourceFile));
+		Class c = classLoader.loadClass(getClassNameFromJavaFile(sourceFile));
 		final Method method = c.getMethod("evaluateMatch", MatchResult.class);
 		return new IMatchEvaluator() {
 
@@ -90,12 +97,10 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 
 		};
 	}
-	
-	public static String getClassNameFromJavaFile(File javaFile)
-	{
+
+	public static String getClassNameFromJavaFile(File javaFile) {
 		String filename = javaFile.getName();
 		return filename.substring(0, filename.length() - ".java".length());
 	}
-
 
 }

@@ -5,8 +5,6 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.e4.core.contexts.EclipseContextFactory;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -47,8 +45,6 @@ public class Activator extends AbstractUIPlugin {
 		logger.debug("The Activator's start method got called!");
 
 		Injector injector = Guice.createInjector(new FindReplaceHandlerModule());
-		IEclipseContext eclipseContext = EclipseContextFactory.getServiceContext(context);
-		eclipseContext.set("com.florianingerl.regexfindandreplace.dependencyinjectorcontainer", injector);
 		ServiceLocator.setInjector(injector);
 	}
 

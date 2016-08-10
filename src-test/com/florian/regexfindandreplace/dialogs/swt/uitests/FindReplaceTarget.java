@@ -38,19 +38,19 @@ public class FindReplaceTarget
 			caretPosition = 0;
 		else if (caretPosition > text.length())
 			caretPosition = text.length();
-		selection.x = caretPosition;
-		selection.y = 0;
+		selection = new Point(caretPosition, 0);
 	}
 
 	@Override
 	public int findAndSelect(int offset, String findString, boolean searchForward, boolean caseSensitive,
 			boolean wholeWord, boolean regExSearch) {
-		logger.debug("Offset = " + offset + " findString = " + findString);
+		logger.debug("Offset = " + offset + " findString = " + findString + " text = " + text);
 		if (wholeWord && regExSearch)
 			throw new UnsupportedOperationException(
 					"wholeWord and regExSearch is not supported. See the documentation of IFindReplaceTargetExtension3");
-		if (offset < 0)
-			offset = 0; // Why is it called with -1??
+		if (offset == -1)
+			offset = searchForward ? 0 : text.length(); // Why is it called with
+														// -1??
 		if (regExSearch) {
 			int flags = Pattern.MULTILINE;
 			if (!caseSensitive)
