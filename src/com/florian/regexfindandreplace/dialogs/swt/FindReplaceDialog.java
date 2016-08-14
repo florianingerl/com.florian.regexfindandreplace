@@ -1462,15 +1462,24 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			return RegexUtils.getReplaceStringOfFirstMatch(wholeText, selection.x,
 					Pattern.compile(getFindString(), flags), fMatchEvaluator);
 		}
+
 		return ""; //$NON-NLS-1$
 	}
 
 	private String getWholeTextOfTarget() {
+		IRegion scope = null;
+		if (fTarget instanceof IFindReplaceTargetExtension) {
+			scope = ((IFindReplaceTargetExtension) fTarget).getScope();
+			((IFindReplaceTargetExtension) fTarget).setScope(null);
+		}
 		Point oldSelection = fTarget.getSelection();
 		oldSelection = new Point(oldSelection.x, oldSelection.y);
 		logger.debug("Before getWholeText(): x = " + oldSelection.x + " y = " + oldSelection.y);
 		((IFindReplaceTargetExtension3) fTarget).findAndSelect(0, "[\\s\\S]*", true, false, false, true);
 		String wholeText = fTarget.getSelectionText();
+		if (scope != null) {
+			((IFindReplaceTargetExtension) fTarget).setScope(scope);
+		}
 		((IFindReplaceTargetExtension3) fTarget).findAndSelect(oldSelection.x, getFindString(), true,
 				isCaseSensitiveSearch(), false, true);
 
@@ -2359,13 +2368,14 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	private void readConfiguration() {
 		IDialogSettings s = getDialogSettings();
 
-		fWrapInit = s.get("wrap") == null || s.getBoolean("wrap"); //$NON-NLS-1$ //$NON-NLS-2$
+		fWrapInit = s.get(DialogSettingsConstants.WRAP) == null || s.getBoolean(DialogSettingsConstants.WRAP); // $NON-NLS-1$
+																												// //$NON-NLS-2$
 		fCaseInit = s.getBoolean(DialogSettingsConstants.CASE_SENSITIVE); // $NON-NLS-1$
-		fWholeWordInit = s.getBoolean("wholeword"); //$NON-NLS-1$
-		fIncrementalInit = s.getBoolean("incremental"); //$NON-NLS-1$
+		fWholeWordInit = s.getBoolean(DialogSettingsConstants.WHOLE_WORD); // $NON-NLS-1$
+		fIncrementalInit = s.getBoolean(DialogSettingsConstants.INCREMENTAL); // $NON-NLS-1$
 		fIsRegExInit = s.get(DialogSettingsConstants.IS_REG_EX) == null
 				|| s.getBoolean(DialogSettingsConstants.IS_REG_EX); // $NON-NLS-1$
-		fLastMatchEvaluatorCode = s.get("lastMatchEvaluatorCode");
+		fLastMatchEvaluatorCode = s.get(DialogSettingsConstants.LAST_MATCH_EVALUATOR_CODE);
 		fUseMatchEvaluator = s.get(DialogSettingsConstants.USE_MATCH_EVALUATOR) == null
 				|| s.getBoolean(DialogSettingsConstants.USE_MATCH_EVALUATOR);
 		String temp = s.get(DialogSettingsConstants.PATH_TO_JAVAC);
@@ -2374,7 +2384,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			if (!fJavacCompiler.exists())
 				fJavacCompiler = null;
 		}
-		String[] findHistory = s.getArray("findhistory"); //$NON-NLS-1$
+		String[] findHistory = s.getArray(DialogSettingsConstants.FIND_HISTORY); // $NON-NLS-1$
 		if (findHistory != null) {
 			List history = getFindHistory();
 			history.clear();
@@ -2382,7 +2392,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 				history.add(findHistory[i]);
 		}
 
-		String[] replaceHistory = s.getArray("replacehistory"); //$NON-NLS-1$
+		String[] replaceHistory = s.getArray(DialogSettingsConstants.REPLACE_HISTORY); // $NON-NLS-1$
 		if (replaceHistory != null) {
 			List history = getReplaceHistory();
 			history.clear();
@@ -2397,12 +2407,12 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	private void writeConfiguration() {
 		IDialogSettings s = getDialogSettings();
 
-		s.put("wrap", fWrapInit); //$NON-NLS-1$
+		s.put(DialogSettingsConstants.WRAP, fWrapInit); // $NON-NLS-1$
 		s.put(DialogSettingsConstants.CASE_SENSITIVE, fCaseInit); // $NON-NLS-1$
-		s.put("wholeword", fWholeWordInit); //$NON-NLS-1$
-		s.put("incremental", fIncrementalInit); //$NON-NLS-1$
+		s.put(DialogSettingsConstants.WHOLE_WORD, fWholeWordInit); // $NON-NLS-1$
+		s.put(DialogSettingsConstants.INCREMENTAL, fIncrementalInit); // $NON-NLS-1$
 		s.put(DialogSettingsConstants.IS_REG_EX, fIsRegExInit); // $NON-NLS-1$
-		s.put("lastMatchEvaluatorCode", fLastMatchEvaluatorCode);
+		s.put(DialogSettingsConstants.LAST_MATCH_EVALUATOR_CODE, fLastMatchEvaluatorCode);
 		s.put(DialogSettingsConstants.USE_MATCH_EVALUATOR, fUseMatchEvaluator);
 		if (fJavacCompiler != null && fJavacCompiler.exists() && fJavacCompiler.getName().equals("javac.exe")) {
 			s.put(DialogSettingsConstants.PATH_TO_JAVAC, fJavacCompiler.getAbsolutePath());
@@ -2411,7 +2421,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		String findString = getFindString();
 		if (findString.length() > 0)
 			history.add(0, findString);
-		writeHistory(history, s, "findhistory"); //$NON-NLS-1$
+		writeHistory(history, s, DialogSettingsConstants.FIND_HISTORY); // $NON-NLS-1$
 
 		history = getReplaceHistory();
 		if (!useMatchEvaluator()) {
@@ -2424,7 +2434,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			}
 		}
 
-		writeHistory(history, s, "replacehistory"); //$NON-NLS-1$
+		writeHistory(history, s, DialogSettingsConstants.REPLACE_HISTORY); // $NON-NLS-1$
 	}
 
 	/**

@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
@@ -517,6 +519,86 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		assertEquals("A1000B20000D30000", target.getText());
 		assertEquals("30000", target.getSelectionText());
 
+	}
+
+	@Test
+	public void getDialogSettings_InAllPossibleScenarios_ShouldBeSavedBetweenSessions() {
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
+		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
+
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+
+		openFindReplaceDialog();
+
+		FindReplaceTarget target = new FindReplaceTarget();
+		target.setText("Hello World!");
+		updateTarget(target, true, false);
+
+		checkDefaultSettings();
+
+		SWTBotCheckBox caseCheckBox = findReplaceDialogWrapper.getfCaseCheckBox();
+		caseCheckBox.select();
+
+		SWTBotCheckBox isWrapCheckBox = findReplaceDialogWrapper.getfWrapCheckBox();
+		isWrapCheckBox.deselect();
+
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("World");
+
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText("return \"Universe\";");
+
+		SWTBotButton findNextButton = findReplaceDialogWrapper.getfFindNextButton();
+		findNextButton.click();
+
+		SWTBotButton replaceButton = findReplaceDialogWrapper.getfReplaceSelectionButton();
+		replaceButton.click();
+		assertEquals("Hello Universe!", target.getText());
+
+		SWTBotButton closeButton = findReplaceDialogWrapper.getfCloseButton();
+		closeButton.click();
+
+		openFindReplaceDialog();
+		target = new FindReplaceTarget();
+		target.setText("Hello World!");
+		updateTarget(target, true, true);
+
+		caseCheckBox = findReplaceDialogWrapper.getfCaseCheckBox();
+		assertTrue(caseCheckBox.isChecked());
+
+		isWrapCheckBox = findReplaceDialogWrapper.getfWrapCheckBox();
+		assertFalse(isWrapCheckBox.isChecked());
+
+		String[] findStuff = newSection.getArray(DialogSettingsConstants.FIND_HISTORY);
+		assertTrue(Arrays.asList(findStuff).contains("World"));
+
+		findField = findReplaceDialogWrapper.getfFindField();
+		assertEquals("World", findField.getText());
+
+		matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		assertEquals("return \"Universe\";", matchEvaluatorField.getText());
+	}
+
+	private void checkDefaultSettings() {
+		SWTBotCheckBox isRegExCheckBox = findReplaceDialogWrapper.getfIsRegExCheckBox();
+		assertTrue(isRegExCheckBox.isChecked());
+		SWTBotCheckBox useMatchEvaluatorCheckBox = findReplaceDialogWrapper.getfUseMatchEvaluatorCheckBox();
+		assertTrue(useMatchEvaluatorCheckBox.isVisible() && useMatchEvaluatorCheckBox.isChecked());
+
+		SWTBotCheckBox isWrapCheckBox = findReplaceDialogWrapper.getfWrapCheckBox();
+		assertTrue(isWrapCheckBox.isChecked());
+
+		SWTBotCheckBox caseCheckBox = findReplaceDialogWrapper.getfCaseCheckBox();
+		assertFalse(caseCheckBox.isChecked());
+
+		SWTBotCheckBox wholeWordCheckBox = findReplaceDialogWrapper.getfWholeWordCheckBox();
+		assertTrue(!wholeWordCheckBox.isEnabled() && !wholeWordCheckBox.isChecked());
+
+		SWTBotCheckBox incrementalCheckBox = findReplaceDialogWrapper.getfIncrementalCheckBox();
+		assertTrue(!incrementalCheckBox.isEnabled() && !incrementalCheckBox.isChecked());
 	}
 
 }
