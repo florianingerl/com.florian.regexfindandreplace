@@ -6,16 +6,21 @@ import java.util.concurrent.CyclicBarrier;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.text.IFindReplaceTarget;
+import org.eclipse.jface.text.AbstractDocument;
+import org.eclipse.jface.text.DefaultLineTracker;
+import org.eclipse.jface.text.GapTextStore;
+import org.eclipse.jface.text.TextViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotStyledText;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,9 +36,9 @@ public abstract class AbstractFindReplaceDialogTest {
 	protected static Shell shell;
 	protected static FindReplaceDialog findReplaceDialog;
 	protected static FindReplaceDialogWrapper findReplaceDialogWrapper;
+	protected static TextViewer textViewer;
+	protected static SWTBotStyledText textWidget;
 
-	private static IFindReplaceTarget fTarget;
-	private static boolean isTargetEditable;
 	private static boolean initializeFindString;
 
 	private final static CyclicBarrier swtBarrier = new CyclicBarrier(2);
@@ -54,7 +59,20 @@ public abstract class AbstractFindReplaceDialogTest {
 								while (true) {
 									// open and layout the shell
 									shell = new Shell();
-									shell.setLayout(new GridLayout());
+									shell.setLayout(new GridLayout(2, false));
+									textViewer = new TextViewer(shell, SWT.BORDER);
+
+									textViewer.setDocument(new AbstractDocument() {
+										{
+											setLineTracker(new DefaultLineTracker());
+											setTextStore(new GapTextStore());
+											completeInitialization();
+										}
+									});
+									GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+									textViewer.getTextWidget().setLayoutData(gd);
+									textWidget = new SWTBotStyledText(textViewer.getTextWidget());
+
 									Button openDialogButton = new Button(shell, SWT.PUSH);
 									openDialogButton.setText("Open dialog");
 									openDialogButton.addSelectionListener(new SelectionAdapter() {
@@ -71,12 +89,13 @@ public abstract class AbstractFindReplaceDialogTest {
 									updateTargetButton.addSelectionListener(new SelectionAdapter() {
 										@Override
 										public void widgetSelected(SelectionEvent e) {
-											findReplaceDialog.updateTarget(fTarget, isTargetEditable,
+											findReplaceDialog.updateTarget(textViewer.getFindReplaceTarget(), true,
 													initializeFindString);
 										}
 									});
+
+									shell.pack();
 									shell.open();
-									shell.layout();
 
 									// wait for the test setup
 									swtBarrier.await();
@@ -117,10 +136,10 @@ public abstract class AbstractFindReplaceDialogTest {
 		openDialogButton.click();
 	}
 
-	protected void updateTarget(IFindReplaceTarget target, boolean isTargetEditable, boolean initializeFindString) {
-		this.fTarget = target;
-		this.isTargetEditable = isTargetEditable;
+	protected void updateTarget(String text, boolean initializeFindString) {
+
 		this.initializeFindString = initializeFindString;
+		textWidget.setText(text);
 		SWTBotButton updateTargetButton = bot.button("Update target");
 		updateTargetButton.click();
 
