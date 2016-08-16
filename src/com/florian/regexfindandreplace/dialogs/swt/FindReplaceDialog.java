@@ -80,6 +80,7 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import com.florian.regexfindandreplace.CouldNotCompileJavaSourceCodeException;
 import com.florian.regexfindandreplace.ExceptionUtils;
 import com.florian.regexfindandreplace.IMatchEvaluator;
+import com.florian.regexfindandreplace.JavacLocator;
 import com.florian.regexfindandreplace.MatchEvaluatorException;
 import com.florian.regexfindandreplace.MatchEvaluatorFromItsFunctionBodyGenerator;
 import com.florian.regexfindandreplace.RegexUtils;
@@ -2381,6 +2382,11 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		String temp = s.get(DialogSettingsConstants.PATH_TO_JAVAC);
 		if (temp != null && temp.endsWith("javac.exe")) {
 			fJavacCompiler = new File(temp);
+			if (!fJavacCompiler.exists())
+				fJavacCompiler = null;
+		}
+		if (fJavacCompiler == null) {
+			fJavacCompiler = JavacLocator.getJavacLocation();
 			if (!fJavacCompiler.exists())
 				fJavacCompiler = null;
 		}

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.Arrays;
 
 import org.eclipse.jface.dialogs.DialogSettings;
@@ -476,6 +477,23 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 
 		assertEquals("A\nB\nCA\nBarbara\nC", textWidget.getText());
 
+	}
+
+	@Test
+	public void pathToJavac_initially_isSetAutomatically() {
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+		openFindReplaceDialog();
+
+		SWTBotButton closeButton = findReplaceDialogWrapper.getfCloseButton();
+		closeButton.click();
+
+		IDialogSettings section = dialogSettings.getSection(FindReplaceDialog.class.getName());
+		File javacFile = new File(section.get(DialogSettingsConstants.PATH_TO_JAVAC));
+
+		assertTrue(javacFile.exists() && javacFile.getName().equals("javac.exe"));
 	}
 
 	private void checkDefaultSettings() {
