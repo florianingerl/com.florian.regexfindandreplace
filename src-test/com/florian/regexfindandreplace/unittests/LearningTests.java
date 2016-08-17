@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class LearningTests {
@@ -50,6 +51,7 @@ public class LearningTests {
 		assertEquals("Germany has 80.000.000 inhabitants. The world has 7.000.000.000 inhabitants.", input);
 	}
 
+	@Ignore
 	@Test
 	public void replaceAll_WorkaroundForMatchesWithZeroLength_PerformsTheReplacementAllTheSame() {
 		String input = "Germany has 80000000 inhabitants. The world has 7000000000 inhabitants.";

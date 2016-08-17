@@ -279,6 +279,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	private Label fMatchEvaluatorLabel;
 
 	private Label fMatchEvaluatorFlagsLabel;
+	private StringBuilder errorLog = new StringBuilder();
+	private Exception lastException = null;
 
 	private DataBindingContext dataBindingContext = new DataBindingContext();
 	private boolean test;
@@ -928,7 +930,21 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		});
 
 		setGridData(fMatchEvaluatorLabel, SWT.LEFT, true, SWT.CENTER, false);
-		Button helpButton = new Button(fMatchEvaluatorPanel, SWT.PUSH);
+		Composite helpAndErrorPanel = new Composite(fMatchEvaluatorPanel, SWT.NULL);
+		setGridData(helpAndErrorPanel, SWT.RIGHT, false, SWT.BOTTOM, false);
+		helpAndErrorPanel.setLayout(new GridLayout());
+		Button errorLogButton = new Button(helpAndErrorPanel, SWT.PUSH);
+		errorLogButton.setText("Error log");
+		errorLogButton.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ErrorLogDialog errorLogDialog = new ErrorLogDialog(getShell(), errorLog);
+				errorLogDialog.setBlockOnOpen(true);
+				errorLogDialog.open();
+			}
+		});
+		Button helpButton = new Button(helpAndErrorPanel, SWT.PUSH);
 		GridData gd = new GridData();
 		helpButton.setLayoutData(gd);
 		gd.horizontalAlignment = SWT.RIGHT;
@@ -1790,6 +1806,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 *            the error message
 	 */
 	private void statusMessage(boolean error, String message) {
+		logger.debug("statusMessage( " + Boolean.toString(error) + ", " + message + ")");
 		fStatusLabel.setText(message);
 
 		if (error)
@@ -1831,6 +1848,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 */
 	private void performReplaceAll() {
 
+		lastException = null;
 		int replaceCount = 0;
 		final String findString = getFindString();
 
@@ -1850,17 +1868,26 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 				BusyIndicator.showWhile(fActiveShell.getDisplay(), runnable);
 				replaceCount = runnable.numberOfOccurrences;
 
+				String msg = null;
 				if (replaceCount != 0) {
 					if (replaceCount == 1) { // not plural
-						statusMessage(EditorMessages.FindReplace_Status_replacement_label);
+						msg = EditorMessages.FindReplace_Status_replacement_label;
 					} else {
-						String msg = EditorMessages.FindReplace_Status_replacements_label;
+						msg = EditorMessages.FindReplace_Status_replacements_label;
 						msg = msg.replace("{0}", Integer.toString(replaceCount));
-						statusMessage(msg);
 					}
+				} else if (lastException != null) {
+					msg = EditorMessages.FindReplace_Status_replacements_label;
+					msg = msg.replace("{0}", Integer.toString(replaceCount));
 				} else {
-					statusMessage(EditorMessages.FindReplace_Status_noMatch_label);
+					msg = EditorMessages.FindReplace_Status_noMatch_label;
 				}
+				if (lastException != null) {
+					errorLog.append(ExceptionUtils.getStackTraceAsString(lastException)).append("\n\n");
+					msg = msg + ",\n" + lastException.getClass().getSimpleName() + " occured";
+				}
+				statusMessage(lastException != null, msg);
+				lastException = null;
 			} catch (PatternSyntaxException ex) {
 				statusError(ex.getLocalizedMessage());
 			} catch (IllegalStateException ex) {
@@ -1906,8 +1933,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		try {
 			replaceString = getReplaceString();
 		} catch (Exception e) {
-			logger.error(ExceptionUtils.getStackTraceAsString(e));
-			statusError(e.getMessage());
+			errorLog.append(ExceptionUtils.getStackTraceAsString(e)).append("\n\n");
+			statusError(e.getClass().getSimpleName() + " occured");
 			return false;
 		}
 		if (replaceString == null)
@@ -2034,8 +2061,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 					try {
 						replaceString = getReplaceString();
 					} catch (Exception e) {
-						logger.error(ExceptionUtils.getStackTraceAsString(e));
-						statusError(e.getMessage());
+						// logger.error(ExceptionUtils.getStackTraceAsString(e));
+						lastException = e;
 						return replaceCount;
 					}
 					replaceString = replaceString == null ? "" : replaceString;
@@ -2474,6 +2501,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		history.toArray(names);
 		settings.put(sectionName, names);
 
+	}
+
+	public StringBuilder getErrorLog() {
+		return errorLog;
 	}
 
 }

@@ -138,6 +138,30 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	}
 
 	@Test
+	public void replaceAll_WithAMatchEvaluatorThatCantBeCompiled_AnAppropriateExceptionIsDisplayed() {
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+		openFindReplaceDialog();
+		updateTarget("Hello World", false);
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText("int i = Integer.parseInt( match.group() ); return \"\"+ (i+1)");
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("World");
+		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
+		replaceAllButton.click();
+		assertEquals("Hello World", textViewer.getDocument().get());
+		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
+		assertEquals("0 matches replaced,\nCouldNotCompileJavaSourceCodeException occured", statusLabel.getText());
+		Mockito.verify(statusLine).setMessage(true,
+				"0 matches replaced,\nCouldNotCompileJavaSourceCodeException occured", null);
+		System.out.println(findReplaceDialog.getErrorLog().toString());
+		assertTrue(findReplaceDialog.getErrorLog().toString().contains("';' expected"));
+	}
+
+	@Test
 	public void replaceAll_WithAMatchEvaluatorWhereAnExceptionIsThrownOnTheSecondMatch_AnAppropriateErrorMessageIsDisplayAndTheMatchIsSelected() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
@@ -155,10 +179,58 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
 		replaceAllButton.click();
 		assertEquals("A101BHermannC200D", textViewer.getDocument().get());
-		assertEquals("Hermann", textViewer.getFindReplaceTarget().getSelectionText());
+		assertEquals("Hermann", textWidget.getSelection());
 		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
-		assertEquals("1 match replaced,\nNumberFormatException occured", statusLabel.getText());
-		Mockito.verify(statusLine).setMessage(true, "NumberFormatException occured", null);
+		assertEquals("1 match replaced,\nMatchEvaluatorException occured", statusLabel.getText());
+		Mockito.verify(statusLine).setMessage(true, "1 match replaced,\nMatchEvaluatorException occured", null);
+		System.out.println(findReplaceDialog.getErrorLog().toString());
+		assertTrue(findReplaceDialog.getErrorLog().toString().contains("NumberFormatException"));
+	}
+
+	@Test
+	public void replace_WithAMatchEvaluatorWhereAnExceptionIsThrownByTheMatchEvaluator_AnAppropriateErrorMessageIsDisplayed() {
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+		openFindReplaceDialog();
+		updateTarget("A100BHermannC200D", false);
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText("int i = Integer.parseInt( match.group() ); return \"\"+ (i+1);");
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("Hermann");
+		SWTBotButton findNextButton = findReplaceDialogWrapper.getfFindNextButton();
+		findNextButton.click();
+		SWTBotButton replaceSelectionButton = findReplaceDialogWrapper.getfReplaceSelectionButton();
+		replaceSelectionButton.click();
+		assertEquals("Hermann", textWidget.getSelection());
+		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
+		assertEquals("MatchEvaluatorException occured", statusLabel.getText());
+		Mockito.verify(statusLine).setMessage(true, "MatchEvaluatorException occured", null);
+		assertTrue(findReplaceDialog.getErrorLog().toString().contains("NumberFormatException"));
+	}
+
+	@Test
+	public void replaceFindNext_WithAMatchEvaluatorWhereAnExceptionIsThrownByTheMatchEvaluator_AnAppropriateErrorMessageIsDisplayed() {
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+		openFindReplaceDialog();
+		updateTarget("A100BHermannC200D", false);
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText("int i = Integer.parseInt( match.group() ); return \"\"+ (i+1);");
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("Hermann");
+		SWTBotButton findNextButton = findReplaceDialogWrapper.getfFindNextButton();
+		findNextButton.click();
+		SWTBotButton replaceFindButton = findReplaceDialogWrapper.getfReplaceFindButton();
+		replaceFindButton.click();
+		assertEquals("Hermann", textWidget.getSelection());
+		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
+		assertEquals("MatchEvaluatorException occured", statusLabel.getText());
+		Mockito.verify(statusLine).setMessage(true, "MatchEvaluatorException occured", null);
+		assertTrue(findReplaceDialog.getErrorLog().toString().contains("NumberFormatException"));
 	}
 
 	@Test
@@ -413,8 +485,10 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		assertFalse(isWrapCheckBox.isChecked());
 		String[] findStuff = newSection.getArray(DialogSettingsConstants.FIND_HISTORY);
 		assertTrue(Arrays.asList(findStuff).contains("World"));
-		findField = findReplaceDialogWrapper.getfFindField();
-		assertEquals("World", findField.getText());
+		/*
+		 * findField = findReplaceDialogWrapper.getfFindField();
+		 * assertEquals("World", findField.getText());
+		 */
 		matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
 		assertEquals("return \"Universe\";", matchEvaluatorField.getText());
 	}
