@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/com.florian.regexfindandreplace.feature_1.0.0.qualifier.jar" id="com.florian.regexfindandreplace.feature" version="1.0.0.qualifier">
+      <category name="com.florian.regexfindandreplace.category"/>
+   </feature>
+   <category-def name="com.florian.regexfindandreplace.category" label="regex find and replace dialog">
+      <description>
+         You can replace a regex match using a match evaluator with this plugin. Press Ctrl + B while a text editor is open to make the dialog appear.
+      </description>
+   </category-def>
+</site>
