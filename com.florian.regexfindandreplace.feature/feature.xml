@@ -5,7 +5,8 @@
       version="1.0.0.qualifier">
 
    <description url="http://www.example.com/description">
-      The feature contains only one plugin. If this plugin is installed, you can press Ctrl + F5 (or Cmd + F5 on mac computers) on an open text editor and a find and replace dialog should appear.
+      The feature contains only one plugin. If this plugin is installed,
+you can press the key combination Ctrl + F5 (or Cmd + F5 on mac computers) while a text editor is opened and a find and replace dialog should appear.
    </description>
 
    <copyright url="http://www.example.com/copyright">
