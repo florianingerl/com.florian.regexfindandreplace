@@ -4,10 +4,10 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src-test"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/Hermann/git/com.florian.regexfindandreplace/com.florian.regexfindandreplace/lib/aopalliance.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hermann/git/com.florian.regexfindandreplace/com.florian.regexfindandreplace/lib/guava-19.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hermann/git/com.florian.regexfindandreplace/com.florian.regexfindandreplace/lib/javax.inject.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hermann/git/com.florian.regexfindandreplace/com.florian.regexfindandreplace/lib/mockito-all-1.10.19.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hermann/git/com.florian.regexfindandreplace/com.florian.regexfindandreplace/lib/guice-snapshot.jar"/>
+	<classpathentry kind="lib" path="../com.florian.regexfindandreplace/lib/aopalliance.jar"/>
+	<classpathentry kind="lib" path="../com.florian.regexfindandreplace/lib/guava-19.0.jar"/>
+	<classpathentry kind="lib" path="../com.florian.regexfindandreplace/lib/javax.inject.jar"/>
+	<classpathentry kind="lib" path="../com.florian.regexfindandreplace/lib/mockito-all-1.10.19.jar"/>
+	<classpathentry kind="lib" path="../com.florian.regexfindandreplace/lib/guice-snapshot.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

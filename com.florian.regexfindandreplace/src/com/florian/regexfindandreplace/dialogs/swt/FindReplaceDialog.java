@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.log4j.Logger;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.conversion.IConverter;
@@ -180,8 +179,6 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		}
 
 	}
-
-	private static Logger logger = Logger.getLogger(FindReplaceDialog.class);
 
 	/** The size of the dialogs search history. */
 	private static final int HISTORY_SIZE = 5;
@@ -1470,12 +1467,11 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 				fLastMatchEvaluatorCode = fMatchEvaluatorField.getText();
 			}
 			String wholeText = getWholeTextOfTarget();
-			logger.debug("Whole text = " + wholeText);
+
 			int flags = Pattern.MULTILINE;
 			if (!isCaseSensitiveSearch())
 				flags |= Pattern.CASE_INSENSITIVE;
 			Point selection = fTarget.getSelection();
-			logger.debug("After getWholeText(): x = " + selection.x + " y = " + selection.y);
 			return RegexUtils.getReplaceStringOfFirstMatch(wholeText, selection.x,
 					Pattern.compile(getFindString(), flags), fMatchEvaluator);
 		}
@@ -1491,7 +1487,6 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		}
 		Point oldSelection = fTarget.getSelection();
 		oldSelection = new Point(oldSelection.x, oldSelection.y);
-		logger.debug("Before getWholeText(): x = " + oldSelection.x + " y = " + oldSelection.y);
 		((IFindReplaceTargetExtension3) fTarget).findAndSelect(0, "[\\s\\S]*", true, false, false, true);
 		String wholeText = fTarget.getSelectionText();
 		if (scope != null) {
@@ -1806,7 +1801,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 *            the error message
 	 */
 	private void statusMessage(boolean error, String message) {
-		logger.debug("statusMessage( " + Boolean.toString(error) + ", " + message + ")");
+
 		fStatusLabel.setText(message);
 
 		if (error)
@@ -1939,7 +1934,6 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		}
 		if (replaceString == null)
 			replaceString = ""; //$NON-NLS-1$
-		logger.debug("Replacement string = " + replaceString);
 
 		boolean replaced;
 		try {
@@ -2053,7 +2047,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			while (index != -1) {
 				index = findAndSelect(findReplacePosition, findString, forwardSearch, caseSensitive, wholeWord,
 						regExSearch);
-				logger.debug("findAndSelect returned " + index);
+
 				if (index != -1) { // substring not contained from current
 									// position
 
@@ -2066,12 +2060,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 						return replaceCount;
 					}
 					replaceString = replaceString == null ? "" : replaceString;
-					logger.debug("Replace string = " + replaceString);
+
 					Point selection = replaceSelection(replaceString,
 							regExSearch && !fUseMatchEvaluatorCheckBox.getSelection());
 					replaceCount++;
-					logger.debug("After replacement x =" + selection.x + " y = " + selection.y + " Selection text = "
-							+ fTarget.getSelectionText());
 
 					if (forwardSearch)
 						findReplacePosition = selection.x + selection.y;

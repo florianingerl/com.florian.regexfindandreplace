@@ -1,7 +1,6 @@
 
 package com.florian.regexfindandreplace.handlers;
 
-import org.apache.log4j.Logger;
 import org.eclipse.e4.core.di.annotations.CanExecute;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.jface.dialogs.IPageChangedListener;
@@ -75,12 +74,10 @@ public class OpenFindReplaceDialogE4Handler {
 		 * @since 3.3
 		 */
 		public FindReplaceDialogStub(Shell shell) {
-			logger.debug("Trying to construct the FindReplaceDialog!");
 			fDialog = ((IFindReplaceDialogProvider) ServiceLocator.getInjector()
 					.getInstance(IFindReplaceDialogProvider.class)).getDialog(shell);
 			fDialog.create();
 			fDialog.getShell().addDisposeListener(this);
-			logger.debug("Successfully constructed the FindReplaceDialog!");
 		}
 
 		/**
@@ -238,7 +235,6 @@ public class OpenFindReplaceDialogE4Handler {
 
 	}
 
-	private static Logger logger = Logger.getLogger(OpenFindReplaceDialogE4Handler.class);
 	/**
 	 * Listener for disabling the dialog on shell close.
 	 * <p>
@@ -264,8 +260,6 @@ public class OpenFindReplaceDialogE4Handler {
 
 	@Execute
 	public void execute(Shell shell, IWorkbenchPart workbenchPart) {
-		logger.debug("The handler was called!");
-
 		if (!canExecute(workbenchPart))
 			return;
 
@@ -287,15 +281,12 @@ public class OpenFindReplaceDialogE4Handler {
 
 		dialog = fgFindReplaceDialogStub.getDialog();
 
-		logger.debug("Try to open the dialog!");
 		dialog.updateTarget(fTarget, isEditable, true);
 		dialog.open();
-		logger.debug("The dialog got opened!");
 	}
 
 	@CanExecute
 	public boolean canExecute(IWorkbenchPart workbenchPart) {
-		logger.debug("Can execute got called!");
 		fTarget = (IFindReplaceTarget) workbenchPart.getAdapter(IFindReplaceTarget.class);
 		return fTarget != null;
 	}

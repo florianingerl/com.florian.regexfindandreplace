@@ -9,6 +9,6 @@ public class ExceptionUtils {
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		e.printStackTrace(pw);
-		return sw.toString(); // stack trace as a string
+		return sw.toString();
 	}
 }

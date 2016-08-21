@@ -12,12 +12,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.regex.MatchResult;
 
-import org.apache.log4j.Logger;
-
 public class MatchEvaluatorFromItsFunctionBodyGenerator {
-
-	private static Logger logger = Logger.getLogger(MatchEvaluatorFromItsFunctionBodyGenerator.class);
-
 	private static int i = 0;
 
 	private File javaCompiler;
@@ -43,15 +38,15 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 			return loadMatchEvaluatorFromClassFile();
 
 		} catch (Exception exception) {
-			logger.error(ExceptionUtils.getStackTraceAsString(exception));
 			throw exception;
 		}
 	}
 
 	private void createSourceFile() throws IOException {
 		sourceFile = null;
+		++i;
 		try {
-			sourceFile = File.createTempFile("MatchEvaluator" + Integer.toString(++i), ".java");
+			sourceFile = File.createTempFile("MatchEvaluator" + Integer.toString(i), ".java");
 		} catch (Exception e) {
 			new File("MatchEvaluators").mkdir();
 			sourceFile = new File(new File("MatchEvaluators"), "MatchEvaluator" + Integer.toString(i) + ".java");
