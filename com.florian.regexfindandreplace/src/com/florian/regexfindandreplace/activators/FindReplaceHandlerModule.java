@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Florian Ingerl.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Florian Ingerl, imelflorianingerl@gmail.com - initial API and implementation
+ *******************************************************************************/
+
 package com.florian.regexfindandreplace.activators;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -15,45 +26,41 @@ import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialogProvider;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
-public class FindReplaceHandlerModule extends AbstractModule{
+public class FindReplaceHandlerModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(IFindReplaceDialogProvider.class).toInstance(
-				new IFindReplaceDialogProvider() {
-					
-					@Override
-					public IFindReplaceDialog getDialog(Shell shell) {
-						// TODO Auto-generated method stub
-						return new FindReplaceDialog(false, shell);
-					}
-				});
+		bind(IFindReplaceDialogProvider.class).toInstance(new IFindReplaceDialogProvider() {
+
+			@Override
+			public IFindReplaceDialog getDialog(Shell shell) {
+				// TODO Auto-generated method stub
+				return new FindReplaceDialog(false, shell);
+			}
+		});
 	}
-	
+
 	@Provides
-	public IWorkbenchWindow getActiveWorkbenchWindow()
-	{
+	public IWorkbenchWindow getActiveWorkbenchWindow() {
 		return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	}
-	
+
 	@Provides
-	public IDialogSettings getDialogSettings()
-	{
+	public IDialogSettings getDialogSettings() {
 		return TextEditorPlugin.getDefault().getDialogSettings();
 	}
-	
+
 	@Provides
-	public IEditorStatusLine getEditorStatusLine()
-	{
-		IWorkbenchWindow window= PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+	public IEditorStatusLine getEditorStatusLine() {
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		if (window == null)
 			return null;
 
-		IWorkbenchPage page= window.getActivePage();
+		IWorkbenchPage page = window.getActivePage();
 		if (page == null)
 			return null;
 
-		IEditorPart editor= page.getActiveEditor();
+		IEditorPart editor = page.getActiveEditor();
 		if (editor == null)
 			return null;
 
