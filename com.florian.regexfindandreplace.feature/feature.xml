@@ -2,7 +2,7 @@
 <feature
       id="com.florian.regexfindandreplace.feature"
       label="Regex find/replace dialog"
-      version="1.0.0.qualifier"
+      version="1.0.0.1"
       provider-name="Florian Ingerl">
 
    <description>
@@ -119,7 +119,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="com.florian.regexfindandreplace"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.1"
          unpack="false"/>
 
 </feature>

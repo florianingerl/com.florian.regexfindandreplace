@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: com.florian.regexfindandreplace
 Bundle-SymbolicName: com.florian.regexfindandreplace;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0.1
 Bundle-ClassPath: .,
  lib/aopalliance.jar,
  lib/guava-19.0.jar,
