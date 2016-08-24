@@ -80,8 +80,8 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 import com.florian.regexfindandreplace.CouldNotCompileJavaSourceCodeException;
 import com.florian.regexfindandreplace.ExceptionUtils;
+import com.florian.regexfindandreplace.IJavacLocator;
 import com.florian.regexfindandreplace.IMatchEvaluator;
-import com.florian.regexfindandreplace.JavacLocator;
 import com.florian.regexfindandreplace.MatchEvaluatorException;
 import com.florian.regexfindandreplace.MatchEvaluatorFromItsFunctionBodyGenerator;
 import com.florian.regexfindandreplace.RegexUtils;
@@ -201,6 +201,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 * @since 3.0
 	 */
 	boolean fIsRegExInit;
+	private boolean fUseMatchEvaluator;
 
 	private List fFindHistory;
 	private List fReplaceHistory;
@@ -215,7 +216,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	private final FindModifyListener fFindModifyListener = new FindModifyListener();
 
 	private Label fReplaceLabel, fStatusLabel;
-	private Button fForwardRadioButton, fGlobalRadioButton, fSelectedRangeRadioButton;
+	private Button fForwardRadioButton, fBackwardRadioButton, fGlobalRadioButton, fSelectedRangeRadioButton;
 	private Button fCaseCheckBox, fWrapCheckBox, fWholeWordCheckBox, fIncrementalCheckBox;
 
 	/**
@@ -225,10 +226,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 */
 	private Button fIsRegExCheckBox;
 
-	private Button fReplaceSelectionButton, fReplaceFindButton, fFindNextButton, fReplaceAllButton;
+	private Button fReplaceSelectionButton, fReplaceFindButton, fFindNextButton, fReplaceAllButton, fCloseButton;
 	private Combo fFindField, fReplaceField;
-	private Composite fMatchEvaluatorPanel;
-	private Button fUseMatchEvaluatorCheckBox;
 	/**
 	 * Find and replace command adapters.
 	 * 
@@ -266,115 +265,21 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 * @since 3.7
 	 */
 	private HashMap fMnemonicButtonMap = new HashMap();
-
-	private boolean fUseMatchEvaluator;
 	private String fLastMatchEvaluatorCode;
 	private IMatchEvaluator fMatchEvaluator;
+	private Composite fMatchEvaluatorPanel;
+	private Label fMatchEvaluatorLabel;
 	private Text fMatchEvaluatorField;
-
+	private Label fMatchEvaluatorFlagsLabel;
 	private File fJavacCompiler;
 	private Text fJavacCompilerField;
+	private Button fUseMatchEvaluatorCheckBox;
 
-	private Label fMatchEvaluatorLabel;
-
-	private Label fMatchEvaluatorFlagsLabel;
 	private StringBuilder errorLog = new StringBuilder();
 	private Exception lastException = null;
 
 	private DataBindingContext dataBindingContext = new DataBindingContext();
 	private boolean test;
-
-	private Button fCloseButton;
-
-	private Button fBackwardRadioButton;
-
-	public Button getfCloseButton() {
-		return fCloseButton;
-	}
-
-	public Label getfStatusLabel() {
-		return fStatusLabel;
-	}
-
-	public Button getfForwardRadioButton() {
-		return fForwardRadioButton;
-	}
-
-	public Button getfGlobalRadioButton() {
-		return fGlobalRadioButton;
-	}
-
-	public Button getfSelectedRangeRadioButton() {
-		return fSelectedRangeRadioButton;
-	}
-
-	public Button getfCaseCheckBox() {
-		return fCaseCheckBox;
-	}
-
-	public Button getfWrapCheckBox() {
-		return fWrapCheckBox;
-	}
-
-	public Button getfWholeWordCheckBox() {
-		return fWholeWordCheckBox;
-	}
-
-	public Button getfIncrementalCheckBox() {
-		return fIncrementalCheckBox;
-	}
-
-	public Button getfIsRegExCheckBox() {
-		return fIsRegExCheckBox;
-	}
-
-	public Button getfReplaceSelectionButton() {
-		return fReplaceSelectionButton;
-	}
-
-	public Button getfReplaceFindButton() {
-		return fReplaceFindButton;
-	}
-
-	public Button getfFindNextButton() {
-		return fFindNextButton;
-	}
-
-	public Button getfReplaceAllButton() {
-		return fReplaceAllButton;
-	}
-
-	public Combo getfFindField() {
-		return fFindField;
-	}
-
-	public Combo getfReplaceField() {
-		return fReplaceField;
-	}
-
-	public Composite getfMatchEvaluatorPanel() {
-		return fMatchEvaluatorPanel;
-	}
-
-	public Button getfUseMatchEvaluatorCheckBox() {
-		return fUseMatchEvaluatorCheckBox;
-	}
-
-	public Text getfMatchEvaluatorField() {
-		return fMatchEvaluatorField;
-	}
-
-	public Text getfJavacCompilerField() {
-		return fJavacCompilerField;
-	}
-
-	public Label getfMatchEvaluatorLabel() {
-		return fMatchEvaluatorLabel;
-	}
-
-	public Label getfMatchEvaluatorFlagsLabel() {
-		return fMatchEvaluatorFlagsLabel;
-	}
 
 	/**
 	 * Creates a new dialog with the given shell as parent.
@@ -2407,7 +2312,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 				fJavacCompiler = null;
 		}
 		if (fJavacCompiler == null) {
-			fJavacCompiler = JavacLocator.getJavacLocation();
+			IJavacLocator javacLocator = (IJavacLocator) ServiceLocator.getInjector().getInstance(IJavacLocator.class);
+			fJavacCompiler = javacLocator.getJavacLocation();
 			if (!fJavacCompiler.exists())
 				fJavacCompiler = null;
 		}
@@ -2495,6 +2401,94 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		history.toArray(names);
 		settings.put(sectionName, names);
 
+	}
+
+	public Button getfCloseButton() {
+		return fCloseButton;
+	}
+
+	public Label getfStatusLabel() {
+		return fStatusLabel;
+	}
+
+	public Button getfForwardRadioButton() {
+		return fForwardRadioButton;
+	}
+
+	public Button getfGlobalRadioButton() {
+		return fGlobalRadioButton;
+	}
+
+	public Button getfSelectedRangeRadioButton() {
+		return fSelectedRangeRadioButton;
+	}
+
+	public Button getfCaseCheckBox() {
+		return fCaseCheckBox;
+	}
+
+	public Button getfWrapCheckBox() {
+		return fWrapCheckBox;
+	}
+
+	public Button getfWholeWordCheckBox() {
+		return fWholeWordCheckBox;
+	}
+
+	public Button getfIncrementalCheckBox() {
+		return fIncrementalCheckBox;
+	}
+
+	public Button getfIsRegExCheckBox() {
+		return fIsRegExCheckBox;
+	}
+
+	public Button getfReplaceSelectionButton() {
+		return fReplaceSelectionButton;
+	}
+
+	public Button getfReplaceFindButton() {
+		return fReplaceFindButton;
+	}
+
+	public Button getfFindNextButton() {
+		return fFindNextButton;
+	}
+
+	public Button getfReplaceAllButton() {
+		return fReplaceAllButton;
+	}
+
+	public Combo getfFindField() {
+		return fFindField;
+	}
+
+	public Combo getfReplaceField() {
+		return fReplaceField;
+	}
+
+	public Composite getfMatchEvaluatorPanel() {
+		return fMatchEvaluatorPanel;
+	}
+
+	public Button getfUseMatchEvaluatorCheckBox() {
+		return fUseMatchEvaluatorCheckBox;
+	}
+
+	public Text getfMatchEvaluatorField() {
+		return fMatchEvaluatorField;
+	}
+
+	public Text getfJavacCompilerField() {
+		return fJavacCompilerField;
+	}
+
+	public Label getfMatchEvaluatorLabel() {
+		return fMatchEvaluatorLabel;
+	}
+
+	public Label getfMatchEvaluatorFlagsLabel() {
+		return fMatchEvaluatorFlagsLabel;
 	}
 
 	public StringBuilder getErrorLog() {

@@ -62,6 +62,14 @@ public class LearningTests {
 		assertEquals("Germany has 80.000.000 inhabitants. The world has 7.000.000.000 inhabitants.", input);
 	}
 
+	@Test
+	public void replaceAll_WithANormalRegexReplace_ReplacesEvertyhing() {
+		String input = "24.08.2016 01.04.2017";
+		Pattern regex = Pattern.compile("\\b(\\d{2})\\.(\\d{2})\\.(?<year>\\d{4})\\b");
+		input = replaceAll(input, regex, "$2/$1/${year}");
+		assertEquals("08/24/2016 04/01/2017", input);
+	}
+
 	@Ignore
 	@Test
 	public void replaceAll_WorkaroundForMatchesWithZeroLength_PerformsTheReplacementAllTheSame() {

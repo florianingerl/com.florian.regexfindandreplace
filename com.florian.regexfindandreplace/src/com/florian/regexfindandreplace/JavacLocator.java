@@ -14,9 +14,9 @@ package com.florian.regexfindandreplace;
 import java.io.File;
 import java.io.FilenameFilter;
 
-public class JavacLocator {
+public class JavacLocator implements IJavacLocator {
 
-	public static File getJavacLocation() {
+	public File getJavacLocation() {
 		String javaHome = System.getProperty("java.home");
 		if (javaHome == null)
 			return null;

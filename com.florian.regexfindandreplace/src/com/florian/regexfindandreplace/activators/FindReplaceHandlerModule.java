@@ -20,6 +20,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 
+import com.florian.regexfindandreplace.IJavacLocator;
+import com.florian.regexfindandreplace.JavacLocator;
 import com.florian.regexfindandreplace.dialogs.swt.FindReplaceDialog;
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialogProvider;
@@ -65,6 +67,11 @@ public class FindReplaceHandlerModule extends AbstractModule {
 			return null;
 
 		return (IEditorStatusLine) editor.getAdapter(IEditorStatusLine.class);
+	}
+
+	@Provides
+	public IJavacLocator getJavacLocator() {
+		return new JavacLocator();
 	}
 
 }

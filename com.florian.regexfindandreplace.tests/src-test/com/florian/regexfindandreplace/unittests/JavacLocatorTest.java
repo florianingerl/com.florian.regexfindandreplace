@@ -18,13 +18,15 @@ import java.io.File;
 
 import org.junit.Test;
 
+import com.florian.regexfindandreplace.IJavacLocator;
 import com.florian.regexfindandreplace.JavacLocator;
 
 public class JavacLocatorTest {
 
 	@Test
 	public void getJavacLocation_OnThisPC_ReturnsAFileToTheJavacCompiler() {
-		File file = JavacLocator.getJavacLocation();
+		IJavacLocator javacLocator = new JavacLocator();
+		File file = javacLocator.getJavacLocation();
 
 		assertNotNull(file);
 		assertTrue(file.exists() && file.getName().equals("javac.exe"));
