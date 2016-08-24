@@ -53,7 +53,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		SWTBotLabel matchEvaluatorLabel = findReplaceDialogWrapper.getfMatchEvaluatorLabel();
 		assertTrue(matchEvaluatorLabel.isVisible());
 		assertTrue(findReplaceDialogWrapper.getfCaseCheckBox().isChecked());
-		assertEquals("}},flags:0);", findReplaceDialogWrapper.getfMatchEvaluatorFlagsLabel().getText());
+		assertEquals("}},flags:Pattern.MULTILINE);", findReplaceDialogWrapper.getfMatchEvaluatorFlagsLabel().getText());
 
 		findField.setText("\\d{2}");
 		assertEquals(
@@ -93,7 +93,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		SWTBotCheckBox isCaseSensitive = findReplaceDialogWrapper.getfCaseCheckBox();
 		assertFalse(isCaseSensitive.isChecked());
 		SWTBotLabel matchEvaluatorFlagsLabel = findReplaceDialogWrapper.getfMatchEvaluatorFlagsLabel();
-		assertEquals("}},flags:Pattern.CASE_INSENSITIVE);", matchEvaluatorFlagsLabel.getText());
+		assertEquals("}},flags:Pattern.MULTILINE|Pattern.CASE_INSENSITIVE);", matchEvaluatorFlagsLabel.getText());
 		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
 		SWTBotLabel matchEvaluatorLabel = findReplaceDialogWrapper.getfMatchEvaluatorLabel();
 		assertTrue(matchEvaluatorLabel.isVisible());
@@ -675,9 +675,32 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		assertEquals("Hallo", textWidget.getText());
 
 		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
-		assertEquals("0 matches replaced.\nNoJavaCompilerSetException occured", statusLabel.getText());
+		assertEquals("0 matches replaced,\nNoJavaCompilerSetException occured", statusLabel.getText());
 
-		Mockito.verify(statusLine).setMessage(true, "0 matches replaced.\nNoJavaCompilerSetException occured", null);
+		Mockito.verify(statusLine).setMessage(true, "0 matches replaced,\nNoJavaCompilerSetException occured", null);
+	}
+
+	@Test
+	public void replaceAll_WithAMatchEvaluatorWhereMULTILINEModeMatters_ReplacesAllMatchesCorrectly() {
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+		openFindReplaceDialog();
+		updateTarget("Florian is\n23 years old.", false);
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText("int i = Integer.parseInt( match.group() ); return \"\" + (i+1); ");
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("^\\d{2}");
+		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
+		replaceAllButton.click();
+		assertEquals("Florian is\n24 years old.", textWidget.getText());
+
+		updateTarget("Sonja is 25\nyears old.", false);
+		findField.setText("\\d{2}$");
+
+		replaceAllButton.click();
+		assertEquals("Sonja is 26\nyears old.", textWidget.getText());
 
 	}
 

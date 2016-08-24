@@ -63,7 +63,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -289,8 +288,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 */
 	public FindReplaceDialog(boolean test, Shell parentShell) {
 		super(parentShell);
-
 		this.test = test;
+
 		fParentShell = null;
 		fTarget = null;
 
@@ -327,6 +326,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 * 
 	 * @return the dialog's parent shell
 	 */
+	@Override
 	public Shell getParentShell() {
 		return super.getParentShell();
 	}
@@ -601,10 +601,6 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		return panel;
 	}
 
-	public Button getfBackwardRadioButton() {
-		return fBackwardRadioButton;
-	}
-
 	/**
 	 * Creates the scope defining part of the find replace dialog.
 	 *
@@ -774,8 +770,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			gd.exclude = true;
 			fUseMatchEvaluatorCheckBox.setVisible(false);
 		}
-
 		fUseMatchEvaluatorCheckBox.setLayoutData(gd);
+
 		fUseMatchEvaluatorCheckBox.setSelection(fUseMatchEvaluator);
 		fUseMatchEvaluatorCheckBox.setText("Use a match evaluator");
 		fUseMatchEvaluatorCheckBox.addSelectionListener(new SelectionListener() {
@@ -905,7 +901,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		fBrowseJavacButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FileDialog dialog = new FileDialog(Display.getCurrent().getActiveShell(), SWT.OPEN);
+				FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 				dialog.setFilterExtensions(new String[] { "*.exe" });
 				dialog.setText("Please select the appropriate java compiler (javac.exe)!");
 
@@ -994,9 +990,9 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 					@Override
 					public Object convert(Object fromObject) {
 						boolean b = (boolean) fromObject;
-						String flags = "}},flags:0);";
+						String flags = "}},flags:Pattern.MULTILINE);";
 						if (!b)
-							flags = "}},flags:Pattern.CASE_INSENSITIVE);";
+							flags = "}},flags:Pattern.MULTILINE|Pattern.CASE_INSENSITIVE);";
 						return flags;
 					}
 				});
@@ -2314,7 +2310,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		if (fJavacCompiler == null) {
 			IJavacLocator javacLocator = (IJavacLocator) ServiceLocator.getInjector().getInstance(IJavacLocator.class);
 			fJavacCompiler = javacLocator.getJavacLocation();
-			if (!fJavacCompiler.exists())
+			if (fJavacCompiler != null && !fJavacCompiler.exists())
 				fJavacCompiler = null;
 		}
 		String[] findHistory = s.getArray(DialogSettingsConstants.FIND_HISTORY); // $NON-NLS-1$
@@ -2413,6 +2409,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 
 	public Button getfForwardRadioButton() {
 		return fForwardRadioButton;
+	}
+
+	public Button getfBackwardRadioButton() {
+		return fBackwardRadioButton;
 	}
 
 	public Button getfGlobalRadioButton() {
