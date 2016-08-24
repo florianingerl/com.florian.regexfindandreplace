@@ -1358,28 +1358,30 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 				return fReplaceField.getText();
 			}
 		} else {
-
-			if (fMatchEvaluator == null || !fMatchEvaluatorField.getText().equals(fLastMatchEvaluatorCode)) {
-				if (fJavacCompiler == null || !fJavacCompiler.exists()
-						|| !fJavacCompiler.getName().equals("javac.exe")) {
-					throw new NoJavaCompilerSetException();
-				}
-				MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(
-						fJavacCompiler);
-				fMatchEvaluator = generator.getMatchEvaluatorFromItsFunctionBody(fMatchEvaluatorField.getText());
-				fLastMatchEvaluatorCode = fMatchEvaluatorField.getText();
-			}
-			String wholeText = getWholeTextOfTarget();
-
+			compileMatchEvaluator();
+			String wholeTargetText = getWholeTextOfTarget();
 			int flags = Pattern.MULTILINE;
 			if (!isCaseSensitiveSearch())
 				flags |= Pattern.CASE_INSENSITIVE;
 			Point selection = fTarget.getSelection();
-			return RegexUtils.getReplaceStringOfFirstMatch(wholeText, selection.x,
+			return RegexUtils.getReplaceStringOfFirstMatch(wholeTargetText, selection.x,
 					Pattern.compile(getFindString(), flags), fMatchEvaluator);
 		}
 
 		return ""; //$NON-NLS-1$
+	}
+
+	private void compileMatchEvaluator() throws NoJavaCompilerSetException, CouldNotCompileJavaSourceCodeException,
+			IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException {
+		if (fMatchEvaluator == null || !fMatchEvaluatorField.getText().equals(fLastMatchEvaluatorCode)) {
+			if (fJavacCompiler == null || !fJavacCompiler.exists() || !fJavacCompiler.getName().equals("javac.exe")) {
+				throw new NoJavaCompilerSetException();
+			}
+			MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(
+					fJavacCompiler);
+			fMatchEvaluator = generator.getMatchEvaluatorFromItsFunctionBody(fMatchEvaluatorField.getText());
+			fLastMatchEvaluatorCode = fMatchEvaluatorField.getText();
+		}
 	}
 
 	private String getWholeTextOfTarget() {
