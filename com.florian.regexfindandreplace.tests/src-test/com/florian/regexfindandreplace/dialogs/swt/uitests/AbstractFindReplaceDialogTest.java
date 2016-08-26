@@ -6,9 +6,7 @@ import java.util.concurrent.CyclicBarrier;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.text.AbstractDocument;
-import org.eclipse.jface.text.DefaultLineTracker;
-import org.eclipse.jface.text.GapTextStore;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -59,16 +57,12 @@ public abstract class AbstractFindReplaceDialogTest {
 								while (true) {
 									// open and layout the shell
 									shell = new Shell();
+									shell.setText("Find/Replace with regular expressions and match evaluators");
+									shell.setSize(800, 600);
 									shell.setLayout(new GridLayout(2, false));
 									textViewer = new TextViewer(shell, SWT.BORDER);
 
-									textViewer.setDocument(new AbstractDocument() {
-										{
-											setLineTracker(new DefaultLineTracker());
-											setTextStore(new GapTextStore());
-											completeInitialization();
-										}
-									});
+									textViewer.setDocument(new Document());
 									GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 									textViewer.getTextWidget().setLayoutData(gd);
 									textWidget = new SWTBotStyledText(textViewer.getTextWidget());
@@ -94,7 +88,6 @@ public abstract class AbstractFindReplaceDialogTest {
 										}
 									});
 
-									shell.pack();
 									shell.open();
 
 									// wait for the test setup

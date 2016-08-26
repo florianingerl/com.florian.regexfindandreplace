@@ -866,7 +866,9 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		fMatchEvaluatorField = new Text(fMatchEvaluatorPanel, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
 		fMatchEvaluatorField.setData(ISWTBotFindConstant.FIND_KEY, "matchEvaluatorField");
 		setGridData(fMatchEvaluatorField, SWT.FILL, true, SWT.FILL, true);
-		((GridData) fMatchEvaluatorField.getLayoutData()).horizontalSpan = 2;
+		gd = (GridData) fMatchEvaluatorField.getLayoutData();
+		gd.horizontalSpan = 2;
+		gd.heightHint = 75;
 		if (fLastMatchEvaluatorCode != null) {
 			fMatchEvaluatorField.setText(fLastMatchEvaluatorCode);
 		}
@@ -923,13 +925,16 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		((GridData) fReplaceField.getLayoutData()).exclude = visible;
 		fMatchEvaluatorPanel.setVisible(visible);
 		((GridData) fMatchEvaluatorPanel.getLayoutData()).exclude = !visible;
-		forceRecalculationOfLayoutAndARepaint(fUseMatchEvaluatorCheckBox.getParent().getParent());
+		if (getShell().isVisible()) {
+			forceRecalculationOfLayoutAndARepaint();
+		}
 	}
 
-	private void forceRecalculationOfLayoutAndARepaint(Composite composite) {
-		composite.layout();
-		composite.redraw();
-		composite.update();
+	private void forceRecalculationOfLayoutAndARepaint() {
+		getShell().pack();
+		getShell().layout();
+		getShell().redraw();
+		getShell().update();
 	}
 
 	/**
@@ -1047,7 +1052,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 				fUseMatchEvaluatorCheckBox.setVisible(newState);
 				((GridData) fUseMatchEvaluatorCheckBox.getLayoutData()).exclude = !newState;
 				setMatchEvaluatorFieldVisible(newState && fUseMatchEvaluatorCheckBox.getSelection());
-				forceRecalculationOfLayoutAndARepaint(fUseMatchEvaluatorCheckBox.getParent().getParent());
+				forceRecalculationOfLayoutAndARepaint();
 
 				updateButtonState();
 				storeSettings();
@@ -1299,6 +1304,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 * 
 	 * @since 3.5
 	 */
+	@Override
 	protected Point getInitialSize() {
 		Point initialSize = super.getInitialSize();
 		Point minSize = getShell().computeSize(SWT.DEFAULT, SWT.DEFAULT);
