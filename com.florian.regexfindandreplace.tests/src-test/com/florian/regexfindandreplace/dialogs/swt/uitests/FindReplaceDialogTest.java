@@ -441,7 +441,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	}
 
 	@Test
-	public void replaceAll_WithAMatchEvaluatorThatHasMultipleMethodsAndFields_TheMatchEvaluatorStillCompiles() {
+	public void replaceAll_WithAMatchEvaluatorThatHasAnInitializerAndMultipleMethodsAndFields_TheMatchEvaluatorStillCompiles() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
 		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
@@ -452,7 +452,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 
 		matchEvaluatorField.setText("day = Integer.parseInt( match.group(\"day\") );"
 				+ "return getOrdinalNumberOfDay() +\" \"+ monthNames[Integer.parseInt(match.group(\"month\")) - 1] + \" \" + match.group(\"year\");\r\n"
-				+ "			}\r\n" + "         private int day;\r\n"
+				+ "			}\r\n" + " { day = 1; }" + "         private int day;\r\n"
 				+ "			private final String [] monthNames = {\"January\", \"February\", \"March\", \"April\", \"May\", \"June\", \"July\", \"August\", \"September\", \"Oktober\", \"November\", \"December\"};\r\n"
 				+ "			\r\n" + "			public String getOrdinalNumberOfDay()\r\n" + "			{\r\n"
 				+ "				String extension = \"th\";\r\n" + "				if( day== 1) extension = \"st\";\r\n"

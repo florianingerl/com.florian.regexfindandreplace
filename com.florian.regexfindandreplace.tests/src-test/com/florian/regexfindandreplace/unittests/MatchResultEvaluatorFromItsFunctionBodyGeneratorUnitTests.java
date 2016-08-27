@@ -116,4 +116,33 @@ public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 		}
 	}
 
+	@Test
+	public void getMatchResultEvaluatorFromItsFunctionBody_WithAMatchEvaluatorWithAnInitializerAndMultipleMethodsAndFields_ItCanBeCompiledAllRight() {
+		try {
+			String functionBody = "day = Integer.parseInt( match.group(\"day\") );"
+					+ "return getOrdinalNumberOfDay() +\" \"+ monthNames[Integer.parseInt(match.group(\"month\")) - 1] + \" \" + match.group(\"year\");\r\n"
+					+ "			}\r\n" + " { System.out.println(\"This is a constructor for an anonymous class.\"); }"
+					+ "         private int day;\r\n"
+					+ "			private final String [] monthNames = {\"January\", \"February\", \"March\", \"April\", \"May\", \"June\", \"July\", \"August\", \"September\", \"Oktober\", \"November\", \"December\"};\r\n"
+					+ "			\r\n" + "			public String getOrdinalNumberOfDay()\r\n" + "			{\r\n"
+					+ "				String extension = \"th\";\r\n"
+					+ "				if( day== 1) extension = \"st\";\r\n"
+					+ "				else if( day== 2) extension = \"nd\";\r\n"
+					+ "				else if ( day==3) extension = \"rd\";\r\n"
+					+ "				return day + extension;";
+			MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(
+					javaCompiler);
+			IMatchEvaluator evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
+
+			String input = "27.08.2016 02.05.2017 03.09.2016 01.02.2016";
+			input = RegexUtils.replaceAll(input, "(?<day>\\d{2})\\.(?<month>\\d{2})\\.(?<year>\\d{4})", evaluator, 0);
+
+			assertEquals("27th August 2016 2nd May 2017 3rd September 2016 1st February 2016", input);
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+
 }
