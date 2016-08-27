@@ -391,6 +391,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		fFindNextButton = makeButton(panel, EditorMessages.FindReplace_FindNextButton_label, 102, true,
 				new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent e) {
+						if (fMatchEvaluatorField.isFocusControl())
+							return;
 						if (isIncrementalSearch() && !isRegExSearchAvailableAndChecked())
 							initIncrementalBaseLocation();
 
