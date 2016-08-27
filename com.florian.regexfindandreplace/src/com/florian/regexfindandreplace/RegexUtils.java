@@ -26,7 +26,7 @@ public class RegexUtils {
 		while (matcher.find()) {
 			sb.append(input.substring(index, matcher.start()));
 			try {
-				sb.append(evaluator.evaluateMatch(matcher.toMatchResult()));
+				sb.append(evaluator.evaluateMatch(matcher));
 			} catch (Exception exp) {
 				throw new MatchEvaluatorException(exp);
 			}
@@ -44,7 +44,7 @@ public class RegexUtils {
 		if (!matcher.find(offset))
 			return null;
 		try {
-			return evaluator.evaluateMatch(matcher.toMatchResult());
+			return evaluator.evaluateMatch(matcher);
 		} catch (Exception e) {
 			throw new MatchEvaluatorException(e);
 		}

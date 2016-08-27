@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
 
 public class MatchEvaluatorFromItsFunctionBodyGenerator {
 	private static int i = 0;
@@ -70,7 +70,7 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 		PrintWriter writer = new PrintWriter(sourceFile);
 		writer.println("import java.util.regex.*;");
 		writer.println("public class " + getClassNameFromJavaFile(sourceFile) + "{");
-		writer.println("public static String evaluateMatch(MatchResult match){");
+		writer.println("public static String evaluateMatch(Matcher match){");
 		writer.println(functionBody);
 		writer.println("}");
 		writer.println("}");
@@ -108,11 +108,11 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 		URL[] urls = new URL[] { url };
 		ClassLoader classLoader = new URLClassLoader(urls);
 		Class c = classLoader.loadClass(getClassNameFromJavaFile(sourceFile));
-		final Method method = c.getMethod("evaluateMatch", MatchResult.class);
+		final Method method = c.getMethod("evaluateMatch", Matcher.class);
 		return new IMatchEvaluator() {
 
 			@Override
-			public String evaluateMatch(MatchResult match) throws Exception {
+			public String evaluateMatch(Matcher match) throws Exception {
 				return (String) method.invoke(null, match);
 			}
 

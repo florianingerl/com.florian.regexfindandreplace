@@ -419,6 +419,60 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	}
 
 	@Test
+	public void replaceAll_WithAMatchEvaluatorWhereANamedGroupIsReferenced1_TheNamedGroupIsRecognized() {
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+		openFindReplaceDialog();
+		updateTarget("Heute ist der 27.08.2016", false);
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText(
+				"String [] monthNames = {\"Januar\", \"Februar\", \"März\", \"April\", \"Mai\", \"Juni\", \"Juli\", \"August\", \"September\", \"Oktober\", \"November\", \"Dezember\"};\r\n"
+						+ "		return match.group(\"day\") + \". \" + monthNames[Integer.parseInt( match.group(\"month\") ) - 1 ] + \" \" + match.group(\"year\");");
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("(?<day>\\d{2})\\.(?<month>\\d{2})\\.(?<year>\\d{4})");
+		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
+		replaceAllButton.click();
+		assertEquals("Heute ist der 27. August 2016", textViewer.getDocument().get());
+		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
+		assertEquals("1 match replaced", statusLabel.getText());
+		Mockito.verify(statusLine).setMessage(false, "1 match replaced", null);
+	}
+
+	@Ignore
+	@Test
+	public void replaceAll_WithAMatchEvaluatorWhereANamedGroupIsReferenced2_TheNamedGroupIsRecognized() {
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+		openFindReplaceDialog();
+		updateTarget("public static final int caseInsensitive = 0;" + "public static final int canonEq = 1;"
+				+ "public static final int unicodeCase =2;" + "public static final int unixLines = 3;"
+				+ "public static final int dotall = 4;", false);
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+		matchEvaluatorField.setText("String identifier = match.group(1);\r\n"
+				+ " System.out.println(\"Itentifier = \" + identifier);\r\n"
+				+ "				StringBuilder sb = new StringBuilder();\r\n"
+				+ "				for (int i = 0; i < identifier.length(); i++) {\r\n"
+				+ "					char c = identifier.charAt(i);\r\n"
+				+ "					if (Character.isUpperCase(c))\r\n" + "						sb.append(\"_\");\r\n"
+				+ "					sb.append(Character.toUpperCase(c));\r\n" + "				}\r\n"
+				+ "				return sb.toString() + match.group(2);");
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		findField.setText("(?![A-Z_]+\\s*=)([\\w_]+)(\\s*=)");
+		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
+		replaceAllButton.click();
+		assertEquals("public static final int CASE_INSENSITIVE = 0;" + "public static final int CANON_EQ = 1;"
+				+ "public static final int UNICODE_CASE =2;" + "public static final int UNIX_LINES = 3;"
+				+ "public static final int DOTALL = 4;", textViewer.getDocument().get());
+		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
+		assertEquals("5 matches replaced", statusLabel.getText());
+		Mockito.verify(statusLine).setMessage(false, "5 matches replaced", null);
+	}
+
+	@Test
 	public void replace_WithAMatchEvaluator_ItJustWorks() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());

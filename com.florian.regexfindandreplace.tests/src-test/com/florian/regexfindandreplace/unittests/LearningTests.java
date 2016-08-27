@@ -89,4 +89,10 @@ public class LearningTests {
 		assertEquals("hex", matcher.group(1));
 	}
 
+	@Test
+	public void parseIntTest() {
+		int i = Integer.parseInt("08");
+		assertEquals(8, i);
+	}
+
 }

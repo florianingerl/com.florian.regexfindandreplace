@@ -3,7 +3,6 @@ package com.florian.regexfindandreplace.dialogs.swt.uitests;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.text.Document;
@@ -43,7 +42,6 @@ public abstract class AbstractFindReplaceDialogTest {
 
 	@BeforeClass
 	public static void setupApp() {
-		PropertyConfigurator.configure("log4j.properties");
 
 		System.out.println("BeforeClass is executed!");
 		if (uiThread == null) {
