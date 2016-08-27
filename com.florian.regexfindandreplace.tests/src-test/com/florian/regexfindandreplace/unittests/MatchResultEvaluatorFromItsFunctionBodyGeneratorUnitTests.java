@@ -90,4 +90,30 @@ public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 		assertEquals("Test", MatchEvaluatorFromItsFunctionBodyGenerator.getClassNameFromJavaFile(file));
 	}
 
+	@Test
+	public void getMatchResultEvaluatorFromItsFunctionBody_WithAMatchEvaluatorWhereTheCalenderClassNeedsToBeImported_CalenderClassCanBeResolved() {
+		try {
+			String functionBody = "Calendar calender = Calendar.getInstance();\r\n"
+					+ "				calender.set(Integer.parseInt(match.group(\"year\")), Integer.parseInt(match.group(\"month\")) - 1,\r\n"
+					+ "						Integer.parseInt(match.group(\"day\")));\r\n"
+					+ "				int dayOfWeek = calender.get(Calendar.DAY_OF_WEEK);\r\n" + "\r\n"
+					+ "				String[] daysOfWeek = { \"Sonntag\", \"Montag\", \"Dienstag\", \"Mittwoch\", \"Donnerstag\", \"Freitag\",\r\n"
+					+ "						\"Samstag\" };\r\n"
+					+ "				return daysOfWeek[dayOfWeek - 1] + \", der \" + match.group(\"date\");";
+			MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(
+					javaCompiler);
+			IMatchEvaluator evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
+
+			String input = "Heute ist der 28.08.2016";
+			input = RegexUtils.replaceAll(input,
+					"(der\\s+)?(?<date>(?<day>\\d{2})\\.(?<month>\\d{2})\\.(?<year>\\d{4}))", evaluator, 0);
+
+			assertEquals("Heute ist Sonntag, der 28.08.2016", input);
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+
 }

@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -193,17 +194,16 @@ public class RegexUtilsTest {
 
 	}
 
-	// This is once again an Eclipse bug!!!
 	@Test
 	public void replaceAll_ToMakeStaticFinalConstantsFollowTheNamingConvention_ItJustWorks() {
 		String input = "public static final int caseInsensitive = 0;" + "public static final int canonEq = 1;"
 				+ "public static final int unicodeCase =2;" + "public static final int unixLines = 3;"
 				+ "public static final int dotall = 4;";
-		String regex = "(?![A-Z_]+\\s*=)([\\w_]+)(\\s*=)";
+		String regex = "(?![A-Z_]+\\s*=)(?<identifier>[\\w_]+)(\\s*=)";
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 			@Override
 			public String evaluateMatch(Matcher match) throws Exception {
-				String identifier = match.group(1);
+				String identifier = match.group("identifier");
 				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < identifier.length(); i++) {
 					char c = identifier.charAt(i);
@@ -224,6 +224,34 @@ public class RegexUtilsTest {
 		assertEquals("public static final int CASE_INSENSITIVE = 0;" + "public static final int CANON_EQ = 1;"
 				+ "public static final int UNICODE_CASE =2;" + "public static final int UNIX_LINES = 3;"
 				+ "public static final int DOTALL = 4;", input);
+
+	}
+
+	@Test
+	public void replaceAll_ToBringDatesInANicerFormat_ItJustWorks() {
+		String input = "Heute ist der 27.08.2016";
+		String regex = "(der\\s+)?(?<date>(?<day>\\d{2})\\.(?<month>\\d{2})\\.(?<year>\\d{4}))";
+		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+			@Override
+			public String evaluateMatch(Matcher match) throws Exception {
+				Calendar calender = Calendar.getInstance();
+				calender.set(Integer.parseInt(match.group("year")), Integer.parseInt(match.group("month")) - 1,
+						Integer.parseInt(match.group("day")));
+				int dayOfWeek = calender.get(Calendar.DAY_OF_WEEK);
+
+				String[] daysOfWeek = { "Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag",
+						"Samstag" };
+				return daysOfWeek[dayOfWeek - 1] + ", der " + match.group("date");
+			}
+
+		};
+
+		try {
+			input = RegexUtils.replaceAll(input, regex, matchEvaluator, Pattern.MULTILINE);
+		} catch (MatchEvaluatorException e) {
+			fail();
+		}
+		assertEquals("Heute ist Samstag, der 27.08.2016", input);
 
 	}
 
