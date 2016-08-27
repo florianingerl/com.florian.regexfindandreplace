@@ -93,10 +93,10 @@ public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 	@Test
 	public void getMatchResultEvaluatorFromItsFunctionBody_WithAMatchEvaluatorWhereTheCalenderClassNeedsToBeImported_CalenderClassCanBeResolved() {
 		try {
-			String functionBody = "Calendar calender = Calendar.getInstance();\r\n"
+			String functionBody = "java.util.Calendar calender = java.util.Calendar.getInstance();\r\n"
 					+ "				calender.set(Integer.parseInt(match.group(\"year\")), Integer.parseInt(match.group(\"month\")) - 1,\r\n"
 					+ "						Integer.parseInt(match.group(\"day\")));\r\n"
-					+ "				int dayOfWeek = calender.get(Calendar.DAY_OF_WEEK);\r\n" + "\r\n"
+					+ "				int dayOfWeek = calender.get(java.util.Calendar.DAY_OF_WEEK);\r\n" + "\r\n"
 					+ "				String[] daysOfWeek = { \"Sonntag\", \"Montag\", \"Dienstag\", \"Mittwoch\", \"Donnerstag\", \"Freitag\",\r\n"
 					+ "						\"Samstag\" };\r\n"
 					+ "				return daysOfWeek[dayOfWeek - 1] + \", der \" + match.group(\"date\");";

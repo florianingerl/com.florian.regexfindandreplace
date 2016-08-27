@@ -13,7 +13,9 @@ package com.florian.regexfindandreplace.unittests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -93,6 +95,24 @@ public class LearningTests {
 	public void parseIntTest() {
 		int i = Integer.parseInt("08");
 		assertEquals(8, i);
+	}
+
+	@Test
+	public void reflectionTest1() {
+		try {
+			Object o = new Object() {
+				public void say(String words) {
+					System.out.println(words);
+				}
+			};
+			Class<?> c = o.getClass();
+			Method m = c.getMethod("say", String.class);
+			m.invoke(o, "Hello");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getLocalizedMessage());
+		}
+
 	}
 
 }

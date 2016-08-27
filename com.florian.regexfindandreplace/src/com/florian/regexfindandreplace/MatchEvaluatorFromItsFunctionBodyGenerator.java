@@ -17,10 +17,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 
 public class MatchEvaluatorFromItsFunctionBodyGenerator {
@@ -37,30 +38,25 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 
 	public IMatchEvaluator getMatchEvaluatorFromItsFunctionBody(String functionBody)
 			throws CouldNotCompileJavaSourceCodeException, IOException, InterruptedException, ClassNotFoundException,
-			NoSuchMethodException, SecurityException {
+			NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		createSourceFile();
+		classFile = new File(sourceFile.getParent(), sourceFile.getName().replace(".java", ".class"));
+		writeSourceFile(functionBody);
+		compileClassFile();
 
-		try {
-
-			createSourceFile();
-			classFile = new File(sourceFile.getParent(), sourceFile.getName().replace(".java", ".class"));
-			writeSourceFile(functionBody);
-			compileClassFile();
-
-			return loadMatchEvaluatorFromClassFile();
-
-		} catch (Exception exception) {
-			throw exception;
-		}
+		return loadMatchEvaluatorFromClassFile();
 	}
 
 	private void createSourceFile() throws IOException {
 		sourceFile = null;
 		++i;
 		try {
-			sourceFile = File.createTempFile("MatchEvaluator" + Integer.toString(i), ".java");
+			sourceFile = File.createTempFile("MatchEvaluatorProvider" + Integer.toString(i), ".java");
 		} catch (Exception e) {
 			new File("MatchEvaluators").mkdir();
-			sourceFile = new File(new File("MatchEvaluators"), "MatchEvaluator" + Integer.toString(i) + ".java");
+			sourceFile = new File(new File("MatchEvaluators"),
+					"MatchEvaluatorProvider" + Integer.toString(i) + ".java");
 			if (!sourceFile.createNewFile())
 				throw new IOException(sourceFile.getAbsolutePath() + " already existed!");
 		}
@@ -68,10 +64,16 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 
 	private void writeSourceFile(String functionBody) throws FileNotFoundException {
 		PrintWriter writer = new PrintWriter(sourceFile);
-		writer.println("import java.util.regex.*;");
+		writer.println("import java.util.regex.Matcher;");
+		writer.println("import java.util.function.Function;");
 		writer.println("public class " + getClassNameFromJavaFile(sourceFile) + "{");
-		writer.println("public static String evaluateMatch(Matcher match){");
+		writer.println("public static Function<Matcher,String> getMatchEvaluator(){");
+		writer.println("return new Function<Matcher,String>(){");
+		writer.println("@Override");
+		writer.println("public String apply(Matcher match){");
 		writer.println(functionBody);
+		writer.println("}");
+		writer.println("};");
 		writer.println("}");
 		writer.println("}");
 		writer.close();
@@ -102,18 +104,20 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 	}
 
 	private IMatchEvaluator loadMatchEvaluatorFromClassFile()
-			throws MalformedURLException, ClassNotFoundException, NoSuchMethodException, SecurityException {
+			throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException, IOException {
 
 		URL url = new File(classFile.getAbsolutePath()).getParentFile().toURI().toURL();
 		URL[] urls = new URL[] { url };
-		ClassLoader classLoader = new URLClassLoader(urls);
-		Class c = classLoader.loadClass(getClassNameFromJavaFile(sourceFile));
-		final Method method = c.getMethod("evaluateMatch", Matcher.class);
+		URLClassLoader classLoader = new URLClassLoader(urls);
+		Class<?> c = classLoader.loadClass(getClassNameFromJavaFile(sourceFile));
+		Method method = c.getMethod("getMatchEvaluator", null);
+		final Function<Matcher, String> matchEvaluator = (Function<Matcher, String>) method.invoke(null);
 		return new IMatchEvaluator() {
 
 			@Override
 			public String evaluateMatch(Matcher match) throws Exception {
-				return (String) method.invoke(null, match);
+				return matchEvaluator.apply(match);
 			}
 
 		};

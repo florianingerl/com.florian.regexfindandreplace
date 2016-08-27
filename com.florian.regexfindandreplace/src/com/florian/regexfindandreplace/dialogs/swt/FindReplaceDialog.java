@@ -15,6 +15,7 @@ package com.florian.regexfindandreplace.dialogs.swt;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1378,7 +1379,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	}
 
 	private void compileMatchEvaluator() throws NoJavaCompilerSetException, CouldNotCompileJavaSourceCodeException,
-			IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException {
+			IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, SecurityException,
+			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if (fMatchEvaluator == null || !fMatchEvaluatorField.getText().equals(fLastMatchEvaluatorCode)) {
 			if (fJavacCompiler == null || !fJavacCompiler.exists() || !fJavacCompiler.getName().equals("javac.exe")) {
 				throw new NoJavaCompilerSetException();
