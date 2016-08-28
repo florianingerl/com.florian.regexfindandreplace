@@ -1,7 +1,7 @@
 ![Find/Replace with regular expressions and match evaluators](media/EclipseMarketplace.jpg)
 
 ### Introduction
-@@ -11,6 +11,10 @@ This is an Eclipse plugin that provides the ability to find regular expression matches in an editor and then replace those matches by writing Java code for a match evaluator. Just hit Ctrl + F5 while a text editor is active and a find/replace dialog will appear.
+This is an Eclipse plugin that provides the ability to find regular expression matches in an editor and then to replace those matches by writing Java code for a so-called match evaluator. Just hit Ctrl + F5 while a text editor is active and a find/replace dialog will appear.
 
 ### What's new :star:
 
@@ -10,3 +10,7 @@
 Initial version.
 
 ### Use cases
+
+If you just work with the replacement string using dollar signs in a replacement operation with regular expressions, you can only reference captured groups, but you can't modify them. With the functionality provided by this plugin, you can modify captured groups! See the following screenshot.
+
+[!Screenshot1](screenshots/Screenshot1.PNG)
