@@ -13,4 +13,4 @@ Initial version.
 
 If you just work with the replacement string using dollar signs in a replacement operation with regular expressions, you can only reference captured groups, but you can't modify them. With the functionality provided by this plugin, you can modify captured groups! See the following screenshot.
 
-[!Screenshot1](screenshots/Screenshot1.PNG)
+![Screenshot1](screenshots/Screenshot1.PNG)
