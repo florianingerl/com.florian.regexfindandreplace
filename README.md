@@ -1,4 +1,4 @@
-![Find/Replace with regular expressions and match evaluators](media/EclipseMarketplace.jpg)
+![Find/Replace with regular expressions and match evaluators](media/logo.png)
 
 ### Introduction
 This is an Eclipse plugin that provides the ability to find regular expression matches in an editor and then to replace those matches by writing Java code for a so-called match evaluator. Just hit Ctrl + F5 while a text editor is active and a find/replace dialog will appear.
@@ -14,3 +14,9 @@ Initial version.
 If you just work with the replacement string using dollar signs in a replacement operation with regular expressions, you can only reference captured groups, but you can't modify them. With the functionality provided by this plugin, you can modify captured groups! See the following screenshot.
 
 ![Screenshot1](screenshots/Screenshot1.PNG)
+
+### Installation
+
+In Eclipse, select the menu Help -> Install New Software. Then enter the url https://github.com/florianingerl/com.florian.regexfindandreplace/raw/master/com.florian.regexfindandreplace.feature/export and hit next, accept and finish until the plugin is installed. See the following screenhot
+
+![Screenhot2](screenhots/Screenshot2.PNG)
