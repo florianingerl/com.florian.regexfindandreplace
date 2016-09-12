@@ -15,11 +15,19 @@
 
 package com.florian.regexfindandreplace.handlers;
 
+import java.lang.reflect.Method;
+
+import javax.swing.text.Document;
+
 import org.eclipse.e4.core.di.annotations.CanExecute;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IFindReplaceTarget;
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.TextViewer;
+import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Shell;
@@ -29,8 +37,10 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
 
+import com.florian.regexfindandreplace.FindReplaceTarget;
 import com.florian.regexfindandreplace.activators.ServiceLocator;
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialogProvider;
@@ -104,8 +114,8 @@ public class OpenFindReplaceDialogE4Handler {
 		}
 
 		private void partActivated(IWorkbenchPart part) {
-			IFindReplaceTarget target = part == null ? null
-					: (IFindReplaceTarget) part.getAdapter(IFindReplaceTarget.class);
+
+			IFindReplaceTarget target = part == null ? null : getFindReplaceTarget(part);
 			fPreviousPart = fPart;
 			fPart = target == null ? null : part;
 
@@ -301,8 +311,38 @@ public class OpenFindReplaceDialogE4Handler {
 
 	@CanExecute
 	public boolean canExecute(IWorkbenchPart workbenchPart) {
-		fTarget = (IFindReplaceTarget) workbenchPart.getAdapter(IFindReplaceTarget.class);
+
+		fTarget = getFindReplaceTarget(workbenchPart);
 		return fTarget != null;
+	}
+
+	private static IFindReplaceTarget getFindReplaceTarget(IWorkbenchPart workbenchPart) {
+		IFindReplaceTarget target = getSophisticatedFindReplaceTarget(workbenchPart);
+		if (target == null) {
+			target = workbenchPart.getAdapter(IFindReplaceTarget.class);
+		}
+		return target;
+	}
+
+	private static IFindReplaceTarget getSophisticatedFindReplaceTarget(IWorkbenchPart workbenchPart) {
+		try {
+			if (workbenchPart instanceof AbstractTextEditor) {
+				AbstractTextEditor editor = (AbstractTextEditor) workbenchPart;
+				Class<AbstractTextEditor> clazz = AbstractTextEditor.class;
+				Method getSourceViewer = clazz.getDeclaredMethod("getSourceViewer");
+				getSourceViewer.setAccessible(true);
+				ISourceViewer sourceViewer = (ISourceViewer) getSourceViewer.invoke(editor);
+				if (sourceViewer instanceof TextViewer) {
+					TextViewer textViewer = (TextViewer) sourceViewer;
+					System.out.println("My own FindReplaceTarget is used!");
+					return new FindReplaceTarget(textViewer);
+				}
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
