@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="../com.florian.regexfindandreplace/lib/javax.inject.jar"/>
 	<classpathentry kind="lib" path="../com.florian.regexfindandreplace/lib/mockito-all-1.10.19.jar"/>
 	<classpathentry kind="lib" path="../com.florian.regexfindandreplace/lib/guice-snapshot.jar"/>
+	<classpathentry kind="lib" path="../com.florian.regexfindandreplace/lib/regex-0.0.1-SNAPSHOT.jar"/> 
 	<classpathentry kind="output" path="bin"/>
 </classpath>

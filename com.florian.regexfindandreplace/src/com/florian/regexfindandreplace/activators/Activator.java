@@ -11,8 +11,14 @@
 
 package com.florian.regexfindandreplace.activators;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import com.google.inject.Guice;
@@ -44,6 +50,12 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+
+		Bundle bundle = Platform.getBundle("com.florian.regexfindandreplace");
+		String bundleLocation = bundle.getLocation();
+		System.out.println("bundleLocation=" + bundleLocation);
+
+		logToFile("bundleLocation=" + bundleLocation);
 
 		Injector injector = Guice.createInjector(new FindReplaceHandlerModule());
 		ServiceLocator.setInjector(injector);
@@ -79,5 +91,15 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+
+	private void logToFile(String message) {
+		try {
+			PrintWriter pw = new PrintWriter(new FileOutputStream("C:/Users/Hermann/Desktop/Log.txt", true));
+			pw.println(message);
+			pw.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
 	}
 }

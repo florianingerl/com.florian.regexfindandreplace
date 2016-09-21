@@ -7,7 +7,8 @@ Bundle-ClassPath: .,
  lib/aopalliance.jar,
  lib/guava-19.0.jar,
  lib/guice-snapshot.jar,
- lib/javax.inject.jar
+ lib/javax.inject.jar,
+ lib/regex-0.0.1-SNAPSHOT.jar
 Bundle-Activator: com.florian.regexfindandreplace.activators.Activator
 Bundle-Vendor: FLORIAN
 Require-Bundle: org.eclipse.ui,

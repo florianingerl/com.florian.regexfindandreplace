@@ -15,6 +15,7 @@
 
 package com.florian.regexfindandreplace.handlers;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import javax.swing.text.Document;
@@ -40,7 +41,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
 
-import com.florian.regexfindandreplace.FindReplaceTarget;
+import com.florian.regexfindandreplace.FindReplaceDocumentAdapter2;
 import com.florian.regexfindandreplace.activators.ServiceLocator;
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialogProvider;
@@ -334,8 +335,12 @@ public class OpenFindReplaceDialogE4Handler {
 				ISourceViewer sourceViewer = (ISourceViewer) getSourceViewer.invoke(editor);
 				if (sourceViewer instanceof TextViewer) {
 					TextViewer textViewer = (TextViewer) sourceViewer;
+					Class<TextViewer> tvClazz = TextViewer.class;
+					Field field = tvClazz.getDeclaredField("fFindReplaceDocumentAdapter");
+					field.setAccessible(true);
+					field.set(textViewer, new FindReplaceDocumentAdapter2(textViewer.getDocument()));
 					System.out.println("My own FindReplaceTarget is used!");
-					return new FindReplaceTarget(textViewer);
+					return textViewer.getFindReplaceTarget();
 				}
 
 			}

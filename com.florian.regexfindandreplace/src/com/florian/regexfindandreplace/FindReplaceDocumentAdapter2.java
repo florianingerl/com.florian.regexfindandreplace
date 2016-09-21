@@ -1,12 +1,11 @@
 package com.florian.regexfindandreplace;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import com.ingerlflori.util.regex.*;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
@@ -14,7 +13,7 @@ import org.eclipse.jface.text.IRepairableDocumentExtension;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
-public class FindReplaceDocumentAdapter implements CharSequence {
+public class FindReplaceDocumentAdapter2 extends FindReplaceDocumentAdapter {
 
 	/**
 	 * Internal type for operation codes.
@@ -69,8 +68,8 @@ public class FindReplaceDocumentAdapter implements CharSequence {
 	 * @param document
 	 *            the adapted document
 	 */
-	public FindReplaceDocumentAdapter(IDocument document) {
-		Assert.isNotNull(document);
+	public FindReplaceDocumentAdapter2(IDocument document) {
+		super(document);
 		fDocument = document;
 	}
 
@@ -101,6 +100,7 @@ public class FindReplaceDocumentAdapter implements CharSequence {
 	 * @throws PatternSyntaxException
 	 *             if a regular expression has invalid syntax
 	 */
+	@Override
 	public IRegion find(int startOffset, String findString, boolean forwardSearch, boolean caseSensitive,
 			boolean wholeWord, boolean regExSearch) throws BadLocationException {
 		Assert.isTrue(!(regExSearch && wholeWord));
@@ -659,6 +659,7 @@ public class FindReplaceDocumentAdapter implements CharSequence {
 	 * @see DocumentEvent
 	 * @see IDocumentListener
 	 */
+	@Override
 	public IRegion replace(String text, boolean regExReplace) throws BadLocationException {
 		return findReplace(REPLACE, -1, null, text, false, false, false, regExReplace);
 	}
@@ -668,6 +669,7 @@ public class FindReplaceDocumentAdapter implements CharSequence {
 	/*
 	 * @see java.lang.CharSequence#length()
 	 */
+	@Override
 	public int length() {
 		return fDocument.getLength();
 	}
@@ -675,6 +677,7 @@ public class FindReplaceDocumentAdapter implements CharSequence {
 	/*
 	 * @see java.lang.CharSequence#charAt(int)
 	 */
+	@Override
 	public char charAt(int index) {
 		try {
 			return fDocument.getChar(index);
@@ -686,6 +689,7 @@ public class FindReplaceDocumentAdapter implements CharSequence {
 	/*
 	 * @see java.lang.CharSequence#subSequence(int, int)
 	 */
+	@Override
 	public CharSequence subSequence(int start, int end) {
 		try {
 			return fDocument.get(start, end - start);
@@ -697,6 +701,7 @@ public class FindReplaceDocumentAdapter implements CharSequence {
 	/*
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		return fDocument.get();
 	}
