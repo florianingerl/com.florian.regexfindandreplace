@@ -335,11 +335,7 @@ public class OpenFindReplaceDialogE4Handler {
 				ISourceViewer sourceViewer = (ISourceViewer) getSourceViewer.invoke(editor);
 				if (sourceViewer instanceof TextViewer) {
 					TextViewer textViewer = (TextViewer) sourceViewer;
-					Class<TextViewer> tvClazz = TextViewer.class;
-					Field field = tvClazz.getDeclaredField("fFindReplaceDocumentAdapter");
-					field.setAccessible(true);
-					field.set(textViewer, new FindReplaceDocumentAdapter2(textViewer.getDocument()));
-					System.out.println("My own FindReplaceTarget is used!");
+					setFindReplaceDocumentAdapter(textViewer);
 					return textViewer.getFindReplaceTarget();
 				}
 
@@ -348,6 +344,15 @@ public class OpenFindReplaceDialogE4Handler {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static void setFindReplaceDocumentAdapter(TextViewer textViewer)
+			throws NoSuchFieldException, IllegalAccessException {
+		Class<TextViewer> clazz = TextViewer.class;
+		Field field = clazz.getDeclaredField("fFindReplaceDocumentAdapter");
+		field.setAccessible(true);
+		field.set(textViewer, new FindReplaceDocumentAdapter2(textViewer.getDocument()));
+		System.out.println("My own FindReplaceTarget is used!");
 	}
 
 }

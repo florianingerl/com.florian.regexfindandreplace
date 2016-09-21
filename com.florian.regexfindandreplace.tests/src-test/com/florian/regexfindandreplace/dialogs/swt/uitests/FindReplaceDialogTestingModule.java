@@ -1,8 +1,11 @@
 package com.florian.regexfindandreplace.dialogs.swt.uitests;
 
+import java.io.File;
+
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 
+import com.florian.regexfindandreplace.IClassPathProvider;
 import com.florian.regexfindandreplace.IJavacLocator;
 import com.florian.regexfindandreplace.JavacLocator;
 import com.google.inject.AbstractModule;
@@ -27,7 +30,21 @@ public class FindReplaceDialogTestingModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		// TODO Auto-generated method stub
+		bind(IClassPathProvider.class).toInstance(new IClassPathProvider() {
+
+			@Override
+			public String getClassPath() {
+				StringBuilder sb = new StringBuilder("\"");
+				File base = new File(".");
+				base = new File(new File(base.getAbsolutePath()).getParentFile().getParentFile(),
+						"com.florian.regexfindandreplace");
+				sb.append(new File(new File(base, "lib"), "regex-0.0.1-SNAPSHOT.jar").getAbsolutePath()).append(";");
+				sb.append(new File(base, "bin").getAbsolutePath()).append(";");
+
+				sb.append("\"");
+				return sb.toString();
+			}
+		});
 
 	}
 

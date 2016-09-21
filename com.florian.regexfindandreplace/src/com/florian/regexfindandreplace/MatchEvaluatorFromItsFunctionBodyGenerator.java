@@ -22,7 +22,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.function.Function;
-import java.util.regex.Matcher;
+
+import com.florian.regexfindandreplace.activators.ServiceLocator;
+import com.ingerlflori.util.regex.MatchResult;
 
 public class MatchEvaluatorFromItsFunctionBodyGenerator {
 	private static int i = 0;
@@ -64,13 +66,16 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 
 	private void writeSourceFile(String functionBody) throws FileNotFoundException {
 		PrintWriter writer = new PrintWriter(sourceFile);
-		writer.println("import java.util.regex.Matcher;");
+		// writer.println("import
+		// com.florian.regexfindandreplace.IMatchEvaluator;");
+		writer.println("import com.ingerlflori.util.regex.*;");
 		writer.println("import java.util.function.Function;");
+		writer.println("import java.util.Stack;");
 		writer.println("public class " + getClassNameFromJavaFile(sourceFile) + "{");
-		writer.println("public static Function<Matcher,String> getMatchEvaluator(){");
-		writer.println("return new Function<Matcher,String>(){");
+		writer.println("public static Function<MatchResult,String> getMatchEvaluator(){");
+		writer.println("return new Function<MatchResult,String>(){");
 		writer.println("@Override");
-		writer.println("public String apply(Matcher match){");
+		writer.println("public String apply(MatchResult match) {");
 		writer.println(functionBody);
 		writer.println("}");
 		writer.println("};");
@@ -80,8 +85,13 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 	}
 
 	private void compileClassFile() throws IOException, InterruptedException, CouldNotCompileJavaSourceCodeException {
-		ProcessBuilder processBuilder = new ProcessBuilder(javaCompiler.getAbsolutePath(),
-				sourceFile.getAbsolutePath());
+
+		ProcessBuilder processBuilder = new ProcessBuilder(javaCompiler.getAbsolutePath());
+		processBuilder.command().add("-cp");
+		IClassPathProvider cpp = ServiceLocator.getInjector().getInstance(IClassPathProvider.class);
+		processBuilder.command().add(cpp.getClassPath());
+		processBuilder.command().add(sourceFile.getAbsolutePath());
+
 		Process p = processBuilder.start();
 		String processOutput = getProcessOutput(p);
 
@@ -112,15 +122,16 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 		URLClassLoader classLoader = new URLClassLoader(urls);
 		Class<?> c = classLoader.loadClass(getClassNameFromJavaFile(sourceFile));
 		Method method = c.getMethod("getMatchEvaluator", null);
-		final Function<Matcher, String> matchEvaluator = (Function<Matcher, String>) method.invoke(null);
+		final Function<MatchResult, String> func = (Function<MatchResult, String>) method.invoke(null);
 		return new IMatchEvaluator() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
-				return matchEvaluator.apply(match);
+			public String evaluateMatch(MatchResult match) throws Exception {
+				return func.apply(match);
 			}
 
 		};
+
 	}
 
 	public static String getClassNameFromJavaFile(File javaFile) {

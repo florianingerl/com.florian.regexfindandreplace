@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.florian.regexfindandreplace.dialogs.swt.FindReplaceDialog;
+import com.florian.regexfindandreplace.handlers.OpenFindReplaceDialogE4Handler;
 
 public abstract class AbstractFindReplaceDialogTest {
 
@@ -59,8 +60,8 @@ public abstract class AbstractFindReplaceDialogTest {
 									shell.setSize(800, 600);
 									shell.setLayout(new GridLayout(2, false));
 									textViewer = new TextViewer(shell, SWT.BORDER);
-
 									textViewer.setDocument(new Document());
+									OpenFindReplaceDialogE4Handler.setFindReplaceDocumentAdapter(textViewer);
 									GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 									textViewer.getTextWidget().setLayoutData(gd);
 									textWidget = new SWTBotStyledText(textViewer.getTextWidget());

@@ -11,6 +11,8 @@
 
 package com.florian.regexfindandreplace.activators;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,6 +23,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+import com.florian.regexfindandreplace.MatchEvaluatorFromItsFunctionBodyGenerator;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -56,6 +59,7 @@ public class Activator extends AbstractUIPlugin {
 		System.out.println("bundleLocation=" + bundleLocation);
 
 		logToFile("bundleLocation=" + bundleLocation);
+		compileSomething();
 
 		Injector injector = Guice.createInjector(new FindReplaceHandlerModule());
 		ServiceLocator.setInjector(injector);
@@ -93,13 +97,36 @@ public class Activator extends AbstractUIPlugin {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 
-	private void logToFile(String message) {
+	public static void logToFile(String message) {
 		try {
 			PrintWriter pw = new PrintWriter(new FileOutputStream("C:/Users/Hermann/Desktop/Log.txt", true));
 			pw.println(message);
 			pw.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+		}
+	}
+
+	private void compileSomething() {
+		try {
+			File sourceFile = new File("MyMatchEvaluator.java");
+			PrintWriter writer = new PrintWriter(sourceFile);
+
+			writer.println("import com.ingerlflori.util.regex.*;");
+			writer.println("import com.florian.IMatchEvaluator;");
+			writer.println(
+					"public class " + MatchEvaluatorFromItsFunctionBodyGenerator.getClassNameFromJavaFile(sourceFile)
+							+ " implements IMatchEvaluator{");
+			writer.println("@Override");
+			writer.println("public String evaluateMatch(Matcher match) throws Exception{");
+			writer.println("return \"Hello\";");
+			writer.println("}");
+			writer.println("}");
+			writer.close();
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }

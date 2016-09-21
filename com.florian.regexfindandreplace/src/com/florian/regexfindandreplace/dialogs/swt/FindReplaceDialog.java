@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import com.ingerlflori.util.regex.Pattern;
+import com.ingerlflori.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -265,6 +265,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 * @since 3.7
 	 */
 	private HashMap fMnemonicButtonMap = new HashMap();
+	private Pattern lastPattern;
 	private String fLastMatchEvaluatorCode;
 	private IMatchEvaluator fMatchEvaluator;
 	private Composite fMatchEvaluatorPanel;
@@ -1373,8 +1374,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			if (!isCaseSensitiveSearch())
 				flags |= Pattern.CASE_INSENSITIVE;
 			Point selection = fTarget.getSelection();
-			return RegexUtils.getReplaceStringOfFirstMatch(wholeTargetText, selection.x,
-					Pattern.compile(getFindString(), flags), fMatchEvaluator);
+			if (lastPattern == null || !lastPattern.pattern().equals(getFindString()) || lastPattern.flags() != flags) {
+				lastPattern = Pattern.compile(getFindString(), flags);
+			}
+			return RegexUtils.getReplaceStringOfFirstMatch(wholeTargetText, selection.x, lastPattern, fMatchEvaluator);
 		}
 
 		return ""; //$NON-NLS-1$

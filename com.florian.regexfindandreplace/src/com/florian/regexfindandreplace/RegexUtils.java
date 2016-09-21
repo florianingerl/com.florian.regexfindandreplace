@@ -11,8 +11,8 @@
 
 package com.florian.regexfindandreplace;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.ingerlflori.util.regex.Matcher;
+import com.ingerlflori.util.regex.Pattern;
 
 public class RegexUtils {
 

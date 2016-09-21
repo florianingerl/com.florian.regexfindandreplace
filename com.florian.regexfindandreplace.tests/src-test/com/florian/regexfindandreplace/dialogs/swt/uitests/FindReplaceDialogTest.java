@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Stack;
 
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -27,6 +28,8 @@ import com.florian.regexfindandreplace.dialogs.swt.DialogSettingsConstants;
 import com.florian.regexfindandreplace.dialogs.swt.FindReplaceDialog;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.ingerlflori.util.regex.Capture;
+import com.ingerlflori.util.regex.MatchResult;
 
 public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 
@@ -71,6 +74,52 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		Mockito.verify(statusLine).setMessage(false, "2 matches replaced", null);
 
 		assertEquals("2 matches replaced", findReplaceDialogWrapper.getfStatusLabel().getText());
+
+	}
+
+	@Test
+	public void replaceAll_WithAMatchEvaluatorAndRegexFeaturesNotAvailableInJavaUtilRegex_ItWorks() {
+		IDialogSettings dialogSettings = new DialogSettings("root");
+		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
+		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
+		newSection.put(DialogSettingsConstants.CASE_SENSITIVE, true);
+		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
+		ServiceLocator.setInjector(injector);
+
+		openFindReplaceDialog();
+		updateTarget("(oja (hier) isjagut)", false);
+
+		assertTrue(findReplaceDialogWrapper.getfIsRegExCheckBox().isChecked());
+
+		SWTBotCheckBox useMatchEvaluatorCheckBox = findReplaceDialogWrapper.getfUseMatchEvaluatorCheckBox();
+		assertTrue(useMatchEvaluatorCheckBox.isVisible());
+		assertTrue(useMatchEvaluatorCheckBox.isChecked());
+
+		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
+		SWTBotLabel matchEvaluatorLabel = findReplaceDialogWrapper.getfMatchEvaluatorLabel();
+		assertTrue(matchEvaluatorLabel.isVisible());
+		assertTrue(findReplaceDialogWrapper.getfCaseCheckBox().isChecked());
+		assertEquals("}},flags:Pattern.MULTILINE);", findReplaceDialogWrapper.getfMatchEvaluatorFlagsLabel().getText());
+
+		findField.setText("(\\(([^()]+|(?1))*\\))");
+
+		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
+
+		matchEvaluatorField.setText("java.util.Stack<Capture> captures = match.captures(1);\r\n"
+				+ "		StringBuilder sb = new StringBuilder();\r\n" + "		int i = 2;\r\n"
+				+ "		while(!captures.isEmpty())\r\n" + "		{\r\n Capture capture = captures.pop();\r\n"
+				+ "			sb.append(\"Capture\"+(i--)+\"=\"+capture.getValue());\r\n" + "		}\r\n"
+				+ "		return sb.toString();");
+
+		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
+		replaceAllButton.click();
+		System.out.println(textViewer.getDocument().get());
+
+		assertEquals("Capture2=(oja (hier) isjagut)Capture1=(hier)", textViewer.getDocument().get());
+		Mockito.verify(statusLine).setMessage(false, "1 match replaced", null);
+
+		assertEquals("1 match replaced", findReplaceDialogWrapper.getfStatusLabel().getText());
 
 	}
 

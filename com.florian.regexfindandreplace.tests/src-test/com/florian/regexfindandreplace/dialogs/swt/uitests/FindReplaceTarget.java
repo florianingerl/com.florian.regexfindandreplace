@@ -1,7 +1,7 @@
 package com.florian.regexfindandreplace.dialogs.swt.uitests;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.ingerlflori.util.regex.Matcher;
+import com.ingerlflori.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.text.IFindReplaceTarget;

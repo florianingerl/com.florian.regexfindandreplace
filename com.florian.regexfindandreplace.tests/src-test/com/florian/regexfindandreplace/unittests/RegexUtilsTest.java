@@ -16,8 +16,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Calendar;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import com.ingerlflori.util.regex.MatchResult;
+import com.ingerlflori.util.regex.Matcher;
+import com.ingerlflori.util.regex.Pattern;
 
 import org.junit.Test;
 
@@ -47,7 +49,7 @@ public class RegexUtilsTest {
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String evaluateMatch(MatchResult match) throws Exception {
 				int i = Integer.parseInt(match.group());
 				return "" + (i + 1);
 			}
@@ -69,7 +71,7 @@ public class RegexUtilsTest {
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String evaluateMatch(MatchResult match) throws Exception {
 				String temp = match.group();
 				return Character.toLowerCase(temp.charAt(0)) + temp.substring(1);
 			}
@@ -92,7 +94,7 @@ public class RegexUtilsTest {
 			input = RegexUtils.replaceAll(input, "c", new IMatchEvaluator() {
 
 				@Override
-				public String evaluateMatch(Matcher match) throws Exception {
+				public String evaluateMatch(MatchResult match) throws Exception {
 					return "A";
 				}
 			}, 0);
@@ -108,7 +110,7 @@ public class RegexUtilsTest {
 		String input = "No matter";
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String evaluateMatch(MatchResult match) throws Exception {
 				return match.group(100); // The group is out of range
 			}
 
@@ -129,7 +131,7 @@ public class RegexUtilsTest {
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String evaluateMatch(MatchResult match) throws Exception {
 				return ".";
 			}
 
@@ -150,7 +152,7 @@ public class RegexUtilsTest {
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String evaluateMatch(MatchResult match) throws Exception {
 
 				if (match.group(1).equals("hex")) {
 					return Integer.toHexString(Integer.parseInt(match.group()));
@@ -175,7 +177,7 @@ public class RegexUtilsTest {
 		String input = "x17=17 and 010=10";
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String evaluateMatch(MatchResult match) throws Exception {
 				if (match.group(1).equals("x")) {
 					return Integer.toHexString(Integer.parseInt(match.group()));
 				} else if (match.group(1).equals("0")) {
@@ -202,7 +204,7 @@ public class RegexUtilsTest {
 		String regex = "(?![A-Z_]+\\s*=)(?<identifier>[\\w_]+)(\\s*=)";
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String evaluateMatch(MatchResult match) throws Exception {
 				String identifier = match.group("identifier");
 				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < identifier.length(); i++) {
@@ -233,7 +235,7 @@ public class RegexUtilsTest {
 		String regex = "(der\\s+)?(?<date>(?<day>\\d{2})\\.(?<month>\\d{2})\\.(?<year>\\d{4}))";
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String evaluateMatch(MatchResult match) throws Exception {
 				Calendar calender = Calendar.getInstance();
 				calender.set(Integer.parseInt(match.group("year")), Integer.parseInt(match.group("month")) - 1,
 						Integer.parseInt(match.group("day")));
@@ -260,7 +262,7 @@ public class RegexUtilsTest {
 		String input = "x17=17 and 010=10";
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String evaluateMatch(MatchResult match) throws Exception {
 				if (match.group(1).equals("x")) {
 					return Integer.toHexString(Integer.parseInt(match.group()));
 				} else if (match.group(1).equals("0")) {
@@ -287,7 +289,7 @@ public class RegexUtilsTest {
 		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String evaluateMatch(MatchResult match) throws Exception {
 
 				if (match.group(1).equals("hex")) {
 					return Integer.toHexString(Integer.parseInt(match.group()));

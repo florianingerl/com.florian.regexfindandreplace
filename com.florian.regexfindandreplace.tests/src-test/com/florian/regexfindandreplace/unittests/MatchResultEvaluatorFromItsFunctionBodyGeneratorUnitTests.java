@@ -17,16 +17,27 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.florian.regexfindandreplace.CouldNotCompileJavaSourceCodeException;
 import com.florian.regexfindandreplace.IMatchEvaluator;
 import com.florian.regexfindandreplace.MatchEvaluatorFromItsFunctionBodyGenerator;
 import com.florian.regexfindandreplace.RegexUtils;
+import com.florian.regexfindandreplace.activators.ServiceLocator;
+import com.florian.regexfindandreplace.dialogs.swt.uitests.FindReplaceDialogTestingModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 
 	private File javaCompiler = new File("C:\\Program Files\\Java\\jdk1.8.0_92\\bin\\javac.exe");
+
+	@Before
+	public void before() {
+		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(null, null));
+		ServiceLocator.setInjector(injector);
+	}
 
 	@Test
 	public void getMatchResultEvaluatorFromItsFunctionBody_JustANormalStringForFunctionBody_GetsTheRequiredMatchResultEvaluator() {

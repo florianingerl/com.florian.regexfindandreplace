@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import com.florian.regexfindandreplace.activators.ServiceLocator;
 import com.florian.regexfindandreplace.dialogs.swt.FindReplaceDialog;
 import com.florian.regexfindandreplace.dialogs.swt.uitests.FindReplaceDialogTestingModule;
+import com.florian.regexfindandreplace.handlers.OpenFindReplaceDialogE4Handler;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -77,6 +78,11 @@ public class MainWindow {
 		textViewer.getDocument().set("Florian is 23 years old.\nHis sister is 2 years older.\nShe is 25 years old.");
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		textViewer.getTextWidget().setLayoutData(gd);
+		try {
+			OpenFindReplaceDialogE4Handler.setFindReplaceDocumentAdapter(textViewer);
+		} catch (NoSuchFieldException | IllegalAccessException e1) {
+			e1.printStackTrace();
+		}
 
 		Button openDialogButton = new Button(shell, SWT.PUSH);
 		openDialogButton.setText("Find/Replace");

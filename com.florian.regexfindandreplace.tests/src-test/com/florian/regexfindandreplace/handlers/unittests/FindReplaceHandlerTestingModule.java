@@ -11,8 +11,11 @@
 
 package com.florian.regexfindandreplace.handlers.unittests;
 
+import java.io.File;
+
 import org.eclipse.swt.widgets.Shell;
 
+import com.florian.regexfindandreplace.IClassPathProvider;
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialogProvider;
 import com.google.inject.AbstractModule;
@@ -37,6 +40,7 @@ public class FindReplaceHandlerTestingModule extends AbstractModule {
 			}
 
 		});
+
 	}
 
 	public MockFindReplaceDialog getLastFindReplaceDialog() {

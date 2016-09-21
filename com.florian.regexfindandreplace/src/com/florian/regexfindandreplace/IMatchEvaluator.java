@@ -11,9 +11,9 @@
 
 package com.florian.regexfindandreplace;
 
-import java.util.regex.Matcher;
+import com.ingerlflori.util.regex.MatchResult;;
 
 public interface IMatchEvaluator {
 
-	String evaluateMatch(Matcher match) throws Exception;
+	String evaluateMatch(MatchResult match) throws Exception;
 }

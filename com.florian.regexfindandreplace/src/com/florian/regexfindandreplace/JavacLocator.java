@@ -33,7 +33,7 @@ public class JavacLocator implements IJavacLocator {
 		if (jdkDirs == null || jdkDirs.length == 0) {
 			return null;
 		}
-		File javacFile = new File(jdkDirs[0], "bin");
+		File javacFile = new File(jdkDirs[jdkDirs.length - 1], "bin");
 		javacFile = new File(javacFile, "javac.exe");
 
 		if (javacFile.exists())

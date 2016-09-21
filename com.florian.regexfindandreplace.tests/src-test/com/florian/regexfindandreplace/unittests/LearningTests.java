@@ -16,8 +16,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.ingerlflori.util.regex.Matcher;
+import com.ingerlflori.util.regex.Pattern;
 
 import org.junit.Ignore;
 import org.junit.Test;
