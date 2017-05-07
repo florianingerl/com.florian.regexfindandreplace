@@ -17,6 +17,15 @@ package com.florian.regexfindandreplace.handlers;
 
 import org.eclipse.e4.core.di.annotations.CanExecute;
 import org.eclipse.e4.core.di.annotations.Execute;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.launching.IVMInstall;
+import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.LibraryLocation;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.text.IFindReplaceTarget;
@@ -30,6 +39,15 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 
 import com.florian.regexfindandreplace.activators.ServiceLocator;
 import com.florian.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
@@ -298,6 +316,7 @@ public class OpenFindReplaceDialogE4Handler {
 		dialog.updateTarget(fTarget, isEditable, true);
 		dialog.open();
 	}
+
 
 	@CanExecute
 	public boolean canExecute(IWorkbenchPart workbenchPart) {

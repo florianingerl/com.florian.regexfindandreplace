@@ -31,6 +31,20 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 
 	private File sourceFile;
 	private File classFile;
+	
+	public static final String BEGIN = "import java.util.regex.Matcher;\r\n" + 
+			"import java.util.function.Function;\r\n" + 
+			"\r\n" + 
+			"public class MatchEvaluatorProvider {\r\n" + 
+			"	public static Function<Matcher, String> getMatchEvaluator() {\r\n" + 
+			"		return new Function<Matcher, String>() {\r\n" + 
+			"			@Override\r\n" + 
+			"			public String apply(Matcher match) {\r\n";
+	
+	public static final String END = "}\r\n" + 
+			"		};\r\n" + 
+			"	}\r\n" + 
+			"}";
 
 	public MatchEvaluatorFromItsFunctionBodyGenerator(File javaCompiler) {
 		this.javaCompiler = javaCompiler;

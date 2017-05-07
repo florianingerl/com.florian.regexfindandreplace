@@ -13,6 +13,7 @@
  *******************************************************************************/
 package com.florian.regexfindandreplace.dialogs.swt;
 
+import org.eclipse.ui.part.FileEditorInput;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -28,23 +29,57 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.conversion.IConverter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
+import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
+import org.eclipse.jdt.internal.ui.javaeditor.JavaSourceViewer;
+import org.eclipse.jdt.launching.IVMInstall;
+import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.LibraryLocation;
+import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.jdt.ui.text.IJavaPartitions;
+import org.eclipse.jdt.ui.text.JavaSourceViewerConfiguration;
+import org.eclipse.jdt.ui.text.JavaTextTools;
 import org.eclipse.jface.action.LegacyActionTools;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ComboContentAdapter;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceColors;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.Assert;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.FindReplaceDocumentAdapterContentProposalProvider;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IFindReplaceTarget;
 import org.eclipse.jface.text.IFindReplaceTargetExtension;
 import org.eclipse.jface.text.IFindReplaceTargetExtension3;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.TextEvent;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.util.Util;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
@@ -56,6 +91,8 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -70,10 +107,12 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
 import org.eclipse.ui.internal.texteditor.SWTUtil;
+import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.IFindReplaceTargetExtension2;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -280,6 +319,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 
 	private DataBindingContext dataBindingContext = new DataBindingContext();
 	private boolean test;
+
+	/*private IJavaProject javaProject = createNewJavaProject();
+	private static final String PACKAGE_NAME = "com.florianingerl.regexfindandreplace.matchevaluators";
+	private static final String CLASS_NAME = "MatchEvaluatorProvider";*/
 
 	/**
 	 * Creates a new dialog with the given shell as parent.
@@ -866,6 +909,47 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			}
 		});
 
+		Composite placeWhereINeedToHaveIt = new Composite(fMatchEvaluatorPanel, SWT.NONE );
+		
+		GridLayout layout= new GridLayout();
+		layout.numColumns= 2;
+		layout.marginHeight= convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
+		layout.marginWidth= convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
+		layout.verticalSpacing= convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+		layout.horizontalSpacing= convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+		placeWhereINeedToHaveIt.setLayout(layout);
+		
+		setGridData(placeWhereINeedToHaveIt, SWT.FILL, true, SWT.FILL, true);
+		gd = (GridData) placeWhereINeedToHaveIt.getLayoutData();
+		gd.horizontalSpan = 2;
+		gd.heightHint = 200;
+		createEditor(placeWhereINeedToHaveIt);
+		/*
+		try {
+			@SuppressWarnings("restriction")
+			CompilationUnitEditor javaEditor = new CompilationUnitEditor();
+			Composite placeWhereINeedToHaveIt = new Composite(fMatchEvaluatorPanel, SWT.NULL);
+			setGridData(placeWhereINeedToHaveIt, SWT.FILL, true, SWT.FILL, true);
+			gd = (GridData) placeWhereINeedToHaveIt.getLayoutData();
+			gd.horizontalSpan = 2;
+			gd.heightHint = 200;
+
+			IType iType = javaProject.findType(PACKAGE_NAME + "." + CLASS_NAME);
+			org.eclipse.jdt.core.ICompilationUnit iCompilationUnit = iType.getCompilationUnit();
+			IEditorPart editorPart = (IEditorPart) javaEditor;
+			System.out.println(iCompilationUnit.getPath());
+			
+			IFile file = javaProject.getProject().getFile(iCompilationUnit.getPath() );
+			
+			editorPart.init(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditors()[0]
+					.getEditorSite(), new FileEditorInput( file ) );
+
+			javaEditor.createPartControl(placeWhereINeedToHaveIt); //Here comes unfortunately an exception!!!
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}*/
+
 		fMatchEvaluatorField = new Text(fMatchEvaluatorPanel, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
 		fMatchEvaluatorField.setData(ISWTBotFindConstant.FIND_KEY, "matchEvaluatorField");
 		setGridData(fMatchEvaluatorField, SWT.FILL, true, SWT.FILL, true);
@@ -885,6 +969,38 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		((GridData) browseJavac.getLayoutData()).horizontalSpan = 2;
 
 		return fMatchEvaluatorPanel;
+	}
+	
+	private SourceViewer createEditor(Composite parent) {
+	
+		IDocument document= new Document( MatchEvaluatorFromItsFunctionBodyGenerator.BEGIN + (fLastMatchEvaluatorCode != null ? fLastMatchEvaluatorCode : "") + MatchEvaluatorFromItsFunctionBodyGenerator.END );
+		JavaTextTools tools= JavaPlugin.getDefault().getJavaTextTools();
+		tools.setupJavaDocumentPartitioner(document, IJavaPartitions.JAVA_PARTITIONING);
+		IPreferenceStore store= JavaPlugin.getDefault().getCombinedPreferenceStore();
+		SourceViewer viewer= new JavaSourceViewer(parent, null, null, false, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL, store);
+		JavaSourceViewerConfiguration configuration= new JavaSourceViewerConfiguration(tools.getColorManager(), store, null, null);
+		viewer.configure(configuration);
+		viewer.setEditable(true);
+		viewer.setDocument(document, MatchEvaluatorFromItsFunctionBodyGenerator.BEGIN.length(), fLastMatchEvaluatorCode != null ? fLastMatchEvaluatorCode.length() : 0 );
+
+		//Font font= JFaceResources.getFont(PreferenceConstants.EDITOR_TEXT_FONT);
+		//viewer.getTextWidget().setFont(font);
+		//new JavaSourcePreviewerUpdater(viewer, configuration, store);
+
+		int nLines= document.getNumberOfLines();
+		if (nLines < 5) {
+			nLines= 5;
+		} else if (nLines > 12) {
+			nLines= 12;
+		}
+
+		Control control= viewer.getControl();
+		GridData data= new GridData(GridData.FILL_BOTH);
+		data.widthHint= convertWidthInCharsToPixels(80);
+		data.heightHint= convertHeightInCharsToPixels(nLines);
+		control.setLayoutData(data);
+
+		return viewer;
 	}
 
 	private Composite createBrowseJavacPanel(Composite parent) {
@@ -2506,5 +2622,76 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	public StringBuilder getErrorLog() {
 		return errorLog;
 	}
+
+	/* private IJavaProject createNewJavaProject() {
+
+		try {
+
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IProject project = root.getProject("com.florianingerl.regexfindandreplace.matchevaluators");
+
+			if (project.exists())
+				project.delete(true, null);
+
+			project.create(null);
+			project.open(null);
+
+			IProjectDescription description = project.getDescription();
+			description.setNatureIds(new String[] { JavaCore.NATURE_ID });
+			project.setDescription(description, null);
+
+			IJavaProject javaProject = JavaCore.create(project);
+
+			IFolder binFolder = project.getFolder("bin");
+			binFolder.create(false, true, null);
+			javaProject.setOutputLocation(binFolder.getFullPath(), null);
+
+			List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
+			IVMInstall vmInstall = JavaRuntime.getDefaultVMInstall();
+			LibraryLocation[] locations = JavaRuntime.getLibraryLocations(vmInstall);
+			for (LibraryLocation element : locations) {
+				entries.add(JavaCore.newLibraryEntry(element.getSystemLibraryPath(), null, null));
+			}
+			// add libs to project class path
+			javaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
+
+			IFolder sourceFolder = project.getFolder("src");
+			sourceFolder.create(false, true, null);
+
+			IPackageFragmentRoot root2 = javaProject.getPackageFragmentRoot(sourceFolder);
+			IClasspathEntry[] oldEntries = javaProject.getRawClasspath();
+			IClasspathEntry[] newEntries = new IClasspathEntry[oldEntries.length + 1];
+			System.arraycopy(oldEntries, 0, newEntries, 0, oldEntries.length);
+			newEntries[oldEntries.length] = JavaCore.newSourceEntry(root2.getPath());
+			javaProject.setRawClasspath(newEntries, null);
+
+			IPackageFragment pack = javaProject.getPackageFragmentRoot(sourceFolder).createPackageFragment(PACKAGE_NAME,
+					false, null);
+
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("package " + pack.getElementName() + ";\n");
+			buffer.append("\n");
+			buffer.append("import java.util.regex.Matcher;\n");
+			buffer.append("import java.util.function.Function;\n");
+			buffer.append("public class " + CLASS_NAME + " {");
+			buffer.append("public static Function<Matcher,String> getMatchEvaluator(){\n");
+			buffer.append("return new Function<Matcher,String>(){");
+			buffer.append("@Override");
+			buffer.append("public String apply(Matcher match){");
+			// buffer.append(functionBody);
+			buffer.append("}");
+			buffer.append("};");
+			buffer.append("}");
+			buffer.append("}");
+
+			ICompilationUnit cu = pack.createCompilationUnit(CLASS_NAME + ".java", buffer.toString(), true, null);
+			return javaProject;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	} */
 
 }
