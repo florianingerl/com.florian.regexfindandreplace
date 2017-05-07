@@ -99,6 +99,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -329,7 +330,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 
 	private IJavaProject javaProject = null;
 
-	private CompilationUnitEditor compilationUnitEditor;
+	//private CompilationUnitEditor compilationUnitEditor;
 
 	/**
 	 * Creates a new dialog with the given shell as parent.
@@ -938,8 +939,11 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		 * createEditor(placeWhereINeedToHaveIt);
 		 */
 
+		
+		/*
 		try {
-			IType iType = javaProject.findType(MatchEvaluatorFromItsFunctionBodyGenerator.PACKAGE_NAME + "." + MatchEvaluatorFromItsFunctionBodyGenerator.CLASS_NAME);
+			IType iType = javaProject.findType(MatchEvaluatorFromItsFunctionBodyGenerator.PACKAGE_NAME + "."
+					+ MatchEvaluatorFromItsFunctionBodyGenerator.CLASS_NAME);
 			org.eclipse.jdt.core.ICompilationUnit iCompilationUnit = iType.getCompilationUnit();
 			IFile file = (IFile) iCompilationUnit.getResource();
 
@@ -969,39 +973,42 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			gd.horizontalSpan = 2;
 			gd.heightHint = 75;
 			fMatchEvaluatorPanel.pack();
-			
 
 		} catch (PartInitException | JavaModelException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		}*/
+
+		try {
+
+			@SuppressWarnings("restriction")
+			CompilationUnitEditor javaEditor = new CompilationUnitEditor();
+			Composite placeWhereINeedToHaveIt = new Composite(fMatchEvaluatorPanel, SWT.NONE);
+			placeWhereINeedToHaveIt.setLayout(new FillLayout() );
+			setGridData(placeWhereINeedToHaveIt, SWT.FILL, true, SWT.FILL, true);
+			gd = (GridData) placeWhereINeedToHaveIt.getLayoutData();
+			gd.horizontalSpan = 2;
+			gd.heightHint = 200;
+
+			IType iType = javaProject.findType(MatchEvaluatorFromItsFunctionBodyGenerator.PACKAGE_NAME + "."
+					+ MatchEvaluatorFromItsFunctionBodyGenerator.CLASS_NAME);
+			org.eclipse.jdt.core.ICompilationUnit iCompilationUnit = iType.getCompilationUnit();
+			IFile file = (IFile) iCompilationUnit.getResource();
+
+			IEditorPart editorPart = (IEditorPart) javaEditor;
+
+			editorPart.init(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditors()[0]
+					.getEditorSite(), new FileEditorInput(file));
+
+			javaEditor.createPartControl(placeWhereINeedToHaveIt);
+			ISourceViewer sourceViewer = javaEditor.getViewer();
+			sourceViewer.setVisibleRegion(MatchEvaluatorFromItsFunctionBodyGenerator.BEGIN.length(),
+					fLastMatchEvaluatorCode.length());
+			// Here comes unfortunately an exception!!!
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		/*
-		 * try {
-		 * 
-		 * @SuppressWarnings("restriction") CompilationUnitEditor javaEditor =
-		 * new CompilationUnitEditor(); Composite placeWhereINeedToHaveIt = new
-		 * Composite(fMatchEvaluatorPanel, SWT.NULL);
-		 * setGridData(placeWhereINeedToHaveIt, SWT.FILL, true, SWT.FILL, true);
-		 * gd = (GridData) placeWhereINeedToHaveIt.getLayoutData();
-		 * gd.horizontalSpan = 2; gd.heightHint = 200;
-		 * 
-		 * IType iType = javaProject.findType(PACKAGE_NAME + "." + CLASS_NAME);
-		 * org.eclipse.jdt.core.ICompilationUnit iCompilationUnit =
-		 * iType.getCompilationUnit(); IEditorPart editorPart = (IEditorPart)
-		 * javaEditor; System.out.println(iCompilationUnit.getPath());
-		 * 
-		 * IFile file =
-		 * javaProject.getProject().getFile(iCompilationUnit.getPath() );
-		 * 
-		 * editorPart.init(PlatformUI.getWorkbench().getActiveWorkbenchWindow().
-		 * getActivePage().getEditors()[0] .getEditorSite(), new
-		 * FileEditorInput( file ) );
-		 * 
-		 * javaEditor.createPartControl(placeWhereINeedToHaveIt); //Here comes
-		 * unfortunately an exception!!!
-		 * 
-		 * } catch (Exception e) { e.printStackTrace(); }
-		 */
 
 		fMatchEvaluatorField = new Text(fMatchEvaluatorPanel, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
 		fMatchEvaluatorField.setData(ISWTBotFindConstant.FIND_KEY, "matchEvaluatorField");
@@ -1026,8 +1033,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 
 	private SourceViewer createEditor(Composite parent) {
 
-		IDocument document = new Document(MatchEvaluatorFromItsFunctionBodyGenerator.BEGIN
-				+ fLastMatchEvaluatorCode
+		IDocument document = new Document(MatchEvaluatorFromItsFunctionBodyGenerator.BEGIN + fLastMatchEvaluatorCode
 				+ MatchEvaluatorFromItsFunctionBodyGenerator.END);
 		JavaTextTools tools = JavaPlugin.getDefault().getJavaTextTools();
 		tools.setupJavaDocumentPartitioner(document, IJavaPartitions.JAVA_PARTITIONING);
@@ -2706,7 +2712,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			javaProject = JavaCore.create(project);
 
 			IFolder binFolder = project.getFolder("bin");
-			if(!binFolder.exists() ) {
+			if (!binFolder.exists()) {
 				binFolder.create(false, true, null);
 			}
 			javaProject.setOutputLocation(binFolder.getFullPath(), null);
@@ -2721,10 +2727,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			javaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
 
 			IFolder sourceFolder = project.getFolder("src");
-			if(!sourceFolder.exists() ) {
+			if (!sourceFolder.exists()) {
 				sourceFolder.create(false, true, null);
 			}
-			
+
 			IPackageFragmentRoot root2 = javaProject.getPackageFragmentRoot(sourceFolder);
 			IClasspathEntry[] oldEntries = javaProject.getRawClasspath();
 			IClasspathEntry[] newEntries = new IClasspathEntry[oldEntries.length + 1];
@@ -2732,18 +2738,20 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			newEntries[oldEntries.length] = JavaCore.newSourceEntry(root2.getPath());
 			javaProject.setRawClasspath(newEntries, null);
 
-			IPackageFragment pack = javaProject.getPackageFragmentRoot(sourceFolder).createPackageFragment(MatchEvaluatorFromItsFunctionBodyGenerator.PACKAGE_NAME,
-					false, null);
-			
+			IPackageFragment pack = javaProject.getPackageFragmentRoot(sourceFolder)
+					.createPackageFragment(MatchEvaluatorFromItsFunctionBodyGenerator.PACKAGE_NAME, false, null);
+
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(MatchEvaluatorFromItsFunctionBodyGenerator.BEGIN);
-			//Always when the ICompilationUnit is saved, the fLastMatchEvaluatorCode is updated and saved in the preferences
-			if(fLastMatchEvaluatorCode == null )
+			// Always when the ICompilationUnit is saved, the
+			// fLastMatchEvaluatorCode is updated and saved in the preferences
+			if (fLastMatchEvaluatorCode == null)
 				fLastMatchEvaluatorCode = "return match.group();\r\n";
 			buffer.append(fLastMatchEvaluatorCode);
 			buffer.append(MatchEvaluatorFromItsFunctionBodyGenerator.END);
 
-			ICompilationUnit cu = pack.createCompilationUnit(MatchEvaluatorFromItsFunctionBodyGenerator.CLASS_NAME + ".java", buffer.toString(), true, null);
+			ICompilationUnit cu = pack.createCompilationUnit(
+					MatchEvaluatorFromItsFunctionBodyGenerator.CLASS_NAME + ".java", buffer.toString(), true, null);
 
 		} catch (Exception e) {
 			e.printStackTrace();
