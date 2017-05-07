@@ -327,7 +327,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	private DataBindingContext dataBindingContext = new DataBindingContext();
 	private boolean test;
 
-	private IJavaProject javaProject = createNewJavaProject();
+	private IJavaProject javaProject = null;
 
 	private CompilationUnitEditor compilationUnitEditor;
 
@@ -358,6 +358,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		fForwardInit = true;
 
 		readConfiguration();
+		initJavaProject();
 
 		setShellStyle(getShellStyle() ^ SWT.APPLICATION_MODAL | SWT.MODELESS);
 		setBlockOnOpen(false);
@@ -2682,15 +2683,18 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		return errorLog;
 	}
 
-	private IJavaProject createNewJavaProject() {
+	private void initJavaProject() {
 
 		try {
 
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IProject project = root.getProject("com.florianingerl.regexfindandreplace.matchevaluators");
 
-			if (project.exists())
-				project.delete(true, null);
+			if (project.exists()) {
+				project.open(null);
+				javaProject = JavaCore.create(project);
+				return;
+			}
 
 			project.create(null);
 			project.open(null);
@@ -2699,10 +2703,12 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			description.setNatureIds(new String[] { JavaCore.NATURE_ID });
 			project.setDescription(description, null);
 
-			IJavaProject javaProject = JavaCore.create(project);
+			javaProject = JavaCore.create(project);
 
 			IFolder binFolder = project.getFolder("bin");
-			binFolder.create(false, true, null);
+			if(!binFolder.exists() ) {
+				binFolder.create(false, true, null);
+			}
 			javaProject.setOutputLocation(binFolder.getFullPath(), null);
 
 			List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
@@ -2715,38 +2721,32 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			javaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
 
 			IFolder sourceFolder = project.getFolder("src");
-			sourceFolder.create(false, true, null);
-
-			IPackageFragment pack = javaProject.getPackageFragmentRoot(sourceFolder).createPackageFragment(MatchEvaluatorFromItsFunctionBodyGenerator.PACKAGE_NAME,
-					false, null);
-
-			StringBuffer buffer = new StringBuffer();
-			buffer.append(MatchEvaluatorFromItsFunctionBodyGenerator.BEGIN);
-			if(fLastMatchEvaluatorCode == null )
-				fLastMatchEvaluatorCode = "return \"\";\r\n";
-			buffer.append(fLastMatchEvaluatorCode);
-			// buffer.append(functionBody);
-			buffer.append(MatchEvaluatorFromItsFunctionBodyGenerator.END);
-
-			ICompilationUnit cu = pack.createCompilationUnit(MatchEvaluatorFromItsFunctionBodyGenerator.CLASS_NAME + ".java", buffer.toString(), true, null);
-
+			if(!sourceFolder.exists() ) {
+				sourceFolder.create(false, true, null);
+			}
+			
 			IPackageFragmentRoot root2 = javaProject.getPackageFragmentRoot(sourceFolder);
 			IClasspathEntry[] oldEntries = javaProject.getRawClasspath();
 			IClasspathEntry[] newEntries = new IClasspathEntry[oldEntries.length + 1];
 			System.arraycopy(oldEntries, 0, newEntries, 0, oldEntries.length);
 			newEntries[oldEntries.length] = JavaCore.newSourceEntry(root2.getPath());
-
-			// javaProject.setRawClasspath(entries, monitor);
-			// newEntries[oldEntries.length + 1] =
-			// JavaCore.newSourceEntry(cu.getPath());
-
 			javaProject.setRawClasspath(newEntries, null);
 
-			return javaProject;
+			IPackageFragment pack = javaProject.getPackageFragmentRoot(sourceFolder).createPackageFragment(MatchEvaluatorFromItsFunctionBodyGenerator.PACKAGE_NAME,
+					false, null);
+			
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(MatchEvaluatorFromItsFunctionBodyGenerator.BEGIN);
+			//Always when the ICompilationUnit is saved, the fLastMatchEvaluatorCode is updated and saved in the preferences
+			if(fLastMatchEvaluatorCode == null )
+				fLastMatchEvaluatorCode = "return match.group();\r\n";
+			buffer.append(fLastMatchEvaluatorCode);
+			buffer.append(MatchEvaluatorFromItsFunctionBodyGenerator.END);
+
+			ICompilationUnit cu = pack.createCompilationUnit(MatchEvaluatorFromItsFunctionBodyGenerator.CLASS_NAME + ".java", buffer.toString(), true, null);
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
 		}
 
 	}
