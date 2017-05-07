@@ -32,10 +32,12 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 	private File sourceFile;
 	private File classFile;
 	
-	public static final String BEGIN = "import java.util.regex.Matcher;\r\n" + 
+	public static final String PACKAGE_NAME = "com.florianingerl.regexfindandreplace.matchevaluators";
+	public static final String CLASS_NAME = "MatchEvaluatorProvider";
+	public static final String BEGIN = "package " + PACKAGE_NAME +";\r\nimport java.util.regex.Matcher;\r\n" + 
 			"import java.util.function.Function;\r\n" + 
 			"\r\n" + 
-			"public class MatchEvaluatorProvider {\r\n" + 
+			"public class " + CLASS_NAME + "{\r\n" + 
 			"	public static Function<Matcher, String> getMatchEvaluator() {\r\n" + 
 			"		return new Function<Matcher, String>() {\r\n" + 
 			"			@Override\r\n" + 
