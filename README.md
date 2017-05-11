@@ -5,6 +5,10 @@ This is an Eclipse plugin that provides the ability to find regular expression m
 
 ### What's new :star:
 
+### Version 1.0.1
+
+- Some performence improvements
+
 ### Version 1.0.0
 
 Initial version.

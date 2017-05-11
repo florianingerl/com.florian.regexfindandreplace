@@ -11,12 +11,13 @@
 
 package com.florian.regexfindandreplace;
 
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegexUtils {
 
-	public static String replaceAll(String input, String regex, IMatchEvaluator evaluator, int flags)
+	public static String replaceAll(String input, String regex, Function<Matcher, String> evaluator, int flags)
 			throws MatchEvaluatorException {
 		Pattern pattern = Pattern.compile(regex, flags);
 		Matcher matcher = pattern.matcher(input);
@@ -26,7 +27,7 @@ public class RegexUtils {
 		while (matcher.find()) {
 			sb.append(input.substring(index, matcher.start()));
 			try {
-				sb.append(evaluator.evaluateMatch(matcher));
+				sb.append(evaluator.apply(matcher));
 			} catch (Exception exp) {
 				throw new MatchEvaluatorException(exp);
 			}
@@ -38,13 +39,13 @@ public class RegexUtils {
 	}
 
 	public static String getReplaceStringOfFirstMatch(String input, int offset, Pattern pattern,
-			IMatchEvaluator evaluator) throws MatchEvaluatorException {
+			Function<Matcher, String> evaluator) throws MatchEvaluatorException {
 		Matcher matcher = pattern.matcher(input);
 
 		if (!matcher.find(offset))
 			return null;
 		try {
-			return evaluator.evaluateMatch(matcher);
+			return evaluator.apply(matcher);
 		} catch (Exception e) {
 			throw new MatchEvaluatorException(e);
 		}

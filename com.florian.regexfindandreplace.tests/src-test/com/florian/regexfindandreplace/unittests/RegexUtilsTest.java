@@ -16,12 +16,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Calendar;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
 
-import com.florian.regexfindandreplace.IMatchEvaluator;
 import com.florian.regexfindandreplace.MatchEvaluatorException;
 import com.florian.regexfindandreplace.RegexUtils;
 
@@ -44,10 +44,10 @@ public class RegexUtilsTest {
 	@Test
 	public void replaceAll_WithAMatchEvaluator_MatchEvaluatorIsCorrectlyCalled() {
 		String input = "Florian is 23 years old. His sister is 2 years older. She is 25 years old!";
-		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+		Function<Matcher, String> matchEvaluator = new Function<Matcher, String>() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String apply(Matcher match)  {
 				int i = Integer.parseInt(match.group());
 				return "" + (i + 1);
 			}
@@ -66,10 +66,10 @@ public class RegexUtilsTest {
 	@Test
 	public void replaceAll_WithAMatchEvaluatorAndACaseInsensitiveSearch_MatchEvaluatorIsCorrectlyCalled() {
 		String input = "All Nouns in the English Language don't start with capital Letters";
-		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+		Function<Matcher, String> matchEvaluator = new Function<Matcher, String>() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String apply(Matcher match)  {
 				String temp = match.group();
 				return Character.toLowerCase(temp.charAt(0)) + temp.substring(1);
 			}
@@ -89,10 +89,10 @@ public class RegexUtilsTest {
 	public void replaceAll_WithAMatchEvaluatorAndACaseSensitiveSearch_NoMatchIsFound() {
 		String input = "C";
 		try {
-			input = RegexUtils.replaceAll(input, "c", new IMatchEvaluator() {
+			input = RegexUtils.replaceAll(input, "c", new Function<Matcher, String>() {
 
 				@Override
-				public String evaluateMatch(Matcher match) throws Exception {
+				public String apply(Matcher match)  {
 					return "A";
 				}
 			}, 0);
@@ -106,9 +106,9 @@ public class RegexUtilsTest {
 	@Test
 	public void replaceAll_WhenTheMatchEvaluatorThrowsAnException_AMatchEvaluatorExceptionIsThrown() {
 		String input = "No matter";
-		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+		Function<Matcher, String> matchEvaluator = new Function<Matcher, String>() {
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String apply(Matcher match)  {
 				return match.group(100); // The group is out of range
 			}
 
@@ -126,10 +126,10 @@ public class RegexUtilsTest {
 	@Test
 	public void replaceAll_WhenTheMatchesAreEmptyStrings_TheseCanAlsoBeReplaced() {
 		String input = "In Deutschland leben 80000000 Menschen!Auf der Welt leben 7000000000 Menschen";
-		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+		Function<Matcher, String> matchEvaluator = new Function<Matcher, String>() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String apply(Matcher match)  {
 				return ".";
 			}
 
@@ -147,10 +147,10 @@ public class RegexUtilsTest {
 	@Test
 	public void replaceAll_WhereALookAheadCapturesAGroup_PerformsTheCorrectReplacement() {
 		String input = "17_{hex}+10_{bin}=27";
-		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+		Function<Matcher, String> matchEvaluator = new Function<Matcher, String>() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String apply(Matcher match)  {
 
 				if (match.group(1).equals("hex")) {
 					return Integer.toHexString(Integer.parseInt(match.group()));
@@ -173,9 +173,9 @@ public class RegexUtilsTest {
 	@Test
 	public void replaceAll_WhereALookbehindCapturesAGroup_PerformsTheCorrectReplacement() {
 		String input = "x17=17 and 010=10";
-		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+		Function<Matcher, String> matchEvaluator = new Function<Matcher, String>() {
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String apply(Matcher match)  {
 				if (match.group(1).equals("x")) {
 					return Integer.toHexString(Integer.parseInt(match.group()));
 				} else if (match.group(1).equals("0")) {
@@ -200,9 +200,9 @@ public class RegexUtilsTest {
 				+ "public static final int unicodeCase =2;" + "public static final int unixLines = 3;"
 				+ "public static final int dotall = 4;";
 		String regex = "(?![A-Z_]+\\s*=)(?<identifier>[\\w_]+)(\\s*=)";
-		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+		Function<Matcher, String> matchEvaluator = new Function<Matcher, String>() {
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String apply(Matcher match)  {
 				String identifier = match.group("identifier");
 				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < identifier.length(); i++) {
@@ -231,9 +231,9 @@ public class RegexUtilsTest {
 	public void replaceAll_ToBringDatesInANicerFormat_ItJustWorks() {
 		String input = "Heute ist der 27.08.2016";
 		String regex = "(der\\s+)?(?<date>(?<day>\\d{2})\\.(?<month>\\d{2})\\.(?<year>\\d{4}))";
-		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+		Function<Matcher, String> matchEvaluator = new Function<Matcher, String>() {
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String apply(Matcher match)  {
 				Calendar calender = Calendar.getInstance();
 				calender.set(Integer.parseInt(match.group("year")), Integer.parseInt(match.group("month")) - 1,
 						Integer.parseInt(match.group("day")));
@@ -258,9 +258,9 @@ public class RegexUtilsTest {
 	@Test
 	public void getReplaceStringOfFirstMatch_WhereALookbehindCapturesAGroup_GetsTheCorrectReplacementString() {
 		String input = "x17=17 and 010=10";
-		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+		Function<Matcher, String> matchEvaluator = new Function<Matcher, String>() {
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String apply(Matcher match)  {
 				if (match.group(1).equals("x")) {
 					return Integer.toHexString(Integer.parseInt(match.group()));
 				} else if (match.group(1).equals("0")) {
@@ -284,10 +284,10 @@ public class RegexUtilsTest {
 	@Test
 	public void getReplaceStringOfFirstMatch_WhereAheadCapturesAGroup_GetsTheCorrectReplacementString() {
 		String input = "17_{hex}+10_{bin}=27";
-		IMatchEvaluator matchEvaluator = new IMatchEvaluator() {
+		Function<Matcher, String> matchEvaluator = new Function<Matcher, String>() {
 
 			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
+			public String apply(Matcher match) {
 
 				if (match.group(1).equals("hex")) {
 					return Integer.toHexString(Integer.parseInt(match.group()));

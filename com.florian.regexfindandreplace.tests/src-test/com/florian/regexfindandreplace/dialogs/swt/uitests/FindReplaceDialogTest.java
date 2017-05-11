@@ -57,7 +57,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 
 		findField.setText("\\d{2}");
 		assertEquals(
-				"editorContent = RegexUtils.replaceNext/All(\ninput: editorContent,\nregex: \"\\d{2}\",\nnew IMatchEvaluator(){\n@Override\npublic String evaluateMatch(MatchResult match){",
+				"editorContent = RegexUtils.replaceNext/All(\ninput: editorContent,\nregex: \"\\d{2}\",\nnew Function<MatchResult, String>(){\n@Override\npublic String apply(MatchResult match){",
 				matchEvaluatorLabel.getText());
 
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -99,7 +99,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		assertTrue(matchEvaluatorLabel.isVisible());
 		findField.setText("maintenance");
 		assertEquals(
-				"editorContent = RegexUtils.replaceNext/All(\ninput: editorContent,\nregex: \"maintenance\",\nnew IMatchEvaluator(){\n@Override\npublic String evaluateMatch(MatchResult match){",
+				"editorContent = RegexUtils.replaceNext/All(\ninput: editorContent,\nregex: \"maintenance\",\nnew Function<MatchResult, String>(){\n@Override\npublic String apply(MatchResult match){",
 				matchEvaluatorLabel.getText());
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
 		matchEvaluatorField.setText("return \"maintenance\";");

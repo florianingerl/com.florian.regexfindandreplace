@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -81,7 +83,6 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import com.florian.regexfindandreplace.CouldNotCompileJavaSourceCodeException;
 import com.florian.regexfindandreplace.ExceptionUtils;
 import com.florian.regexfindandreplace.IJavacLocator;
-import com.florian.regexfindandreplace.IMatchEvaluator;
 import com.florian.regexfindandreplace.MatchEvaluatorException;
 import com.florian.regexfindandreplace.MatchEvaluatorFromItsFunctionBodyGenerator;
 import com.florian.regexfindandreplace.RegexUtils;
@@ -267,7 +268,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	private HashMap fMnemonicButtonMap = new HashMap();
 	private Pattern fPattern;
 	private String fLastMatchEvaluatorCode;
-	private IMatchEvaluator fMatchEvaluator;
+	private Function<Matcher, String> fMatchEvaluator;
 	private Composite fMatchEvaluatorPanel;
 	private Label fMatchEvaluatorLabel;
 	private Text fMatchEvaluatorField;
@@ -827,7 +828,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 						String findString = (String) fromObject;
 						return "editorContent = RegexUtils.replaceNext/All(\ninput: editorContent,\nregex: \""
 								+ (findString != null ? findString : "")
-								+ "\",\nnew IMatchEvaluator(){\n@Override\npublic String evaluateMatch(MatchResult match){";
+								+ "\",\nnew Function<MatchResult, String>(){\n@Override\npublic String apply(MatchResult match){";
 					}
 				});
 			}

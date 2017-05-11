@@ -36,7 +36,7 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 		this.javaCompiler = javaCompiler;
 	}
 
-	public IMatchEvaluator getMatchEvaluatorFromItsFunctionBody(String functionBody)
+	public Function<Matcher, String> getMatchEvaluatorFromItsFunctionBody(String functionBody)
 			throws CouldNotCompileJavaSourceCodeException, IOException, InterruptedException, ClassNotFoundException,
 			NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException {
@@ -103,7 +103,7 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 		return sb.toString();
 	}
 
-	private IMatchEvaluator loadMatchEvaluatorFromClassFile()
+	private Function<Matcher, String> loadMatchEvaluatorFromClassFile()
 			throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, IOException {
 
@@ -112,15 +112,7 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 		URLClassLoader classLoader = new URLClassLoader(urls);
 		Class<?> c = classLoader.loadClass(getClassNameFromJavaFile(sourceFile));
 		Method method = c.getMethod("getMatchEvaluator", null);
-		final Function<Matcher, String> matchEvaluator = (Function<Matcher, String>) method.invoke(null);
-		return new IMatchEvaluator() {
-
-			@Override
-			public String evaluateMatch(Matcher match) throws Exception {
-				return matchEvaluator.apply(match);
-			}
-
-		};
+		return (Function<Matcher, String>) method.invoke(null);
 	}
 
 	public static String getClassNameFromJavaFile(File javaFile) {

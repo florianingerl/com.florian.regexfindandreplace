@@ -16,17 +16,18 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.function.Function;
+import java.util.regex.Matcher;
 
 import org.junit.Test;
 
 import com.florian.regexfindandreplace.CouldNotCompileJavaSourceCodeException;
-import com.florian.regexfindandreplace.IMatchEvaluator;
 import com.florian.regexfindandreplace.MatchEvaluatorFromItsFunctionBodyGenerator;
 import com.florian.regexfindandreplace.RegexUtils;
 
 public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 
-	private File javaCompiler = new File("C:\\Program Files\\Java\\jdk1.8.0_92\\bin\\javac.exe");
+	private File javaCompiler = new File("C:\\Program Files\\Java\\jdk1.8.0_102\\bin\\javac.exe");
 
 	@Test
 	public void getMatchResultEvaluatorFromItsFunctionBody_JustANormalStringForFunctionBody_GetsTheRequiredMatchResultEvaluator() {
@@ -35,9 +36,9 @@ public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 			String functionBody = "return \"Hello\";";
 			MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(
 					javaCompiler);
-			IMatchEvaluator evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
+			Function<Matcher, String> evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
 
-			assertEquals("Hello", evaluator.evaluateMatch(null));
+			assertEquals("Hello", evaluator.apply(null));
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -51,7 +52,7 @@ public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 			String functionBody = "int i = Integer.parseInt(match.group());\nreturn \"\"+(i+1);";
 			MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(
 					javaCompiler);
-			IMatchEvaluator evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
+			Function<Matcher, String> evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
 
 			String input = "Florian is 23 years old. His sister is 2 years older. She is 25 years old.";
 			input = RegexUtils.replaceAll(input, "\\d{2}", evaluator, 0);
@@ -72,7 +73,7 @@ public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 			String functionBody = "int i = Integer.parseInt(match.group());\nreturn \"\"+(i+1)";
 			MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(
 					javaCompiler);
-			IMatchEvaluator evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
+			Function<Matcher, String> evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
 		} catch (CouldNotCompileJavaSourceCodeException e) {
 			System.out.println(e.getMessage());
 			assertTrue(e.getMessage().contains("';' expected"));
@@ -102,7 +103,7 @@ public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 					+ "				return daysOfWeek[dayOfWeek - 1] + \", der \" + match.group(\"date\");";
 			MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(
 					javaCompiler);
-			IMatchEvaluator evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
+			Function<Matcher, String> evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
 
 			String input = "Heute ist der 28.08.2016";
 			input = RegexUtils.replaceAll(input,
@@ -132,7 +133,7 @@ public class MatchResultEvaluatorFromItsFunctionBodyGeneratorUnitTests {
 					+ "				return day + extension;";
 			MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(
 					javaCompiler);
-			IMatchEvaluator evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
+			Function<Matcher, String> evaluator = generator.getMatchEvaluatorFromItsFunctionBody(functionBody);
 
 			String input = "27.08.2016 02.05.2017 03.09.2016 01.02.2016";
 			input = RegexUtils.replaceAll(input, "(?<day>\\d{2})\\.(?<month>\\d{2})\\.(?<year>\\d{4})", evaluator, 0);
