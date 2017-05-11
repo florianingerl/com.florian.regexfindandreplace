@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.florian.regexfindandreplace.feature_1.0.0.qualifier.jar" id="com.florian.regexfindandreplace.feature" version="1.0.0.qualifier">
+   <feature url="features/com.florian.regexfindandreplace.feature_1.0.1.qualifier.jar" id="com.florian.regexfindandreplace.feature" version="1.0.1.qualifier">
       <category name="com.florian.regexfindandreplace.category"/>
    </feature>
    <category-def name="com.florian.regexfindandreplace.category" label="Regex find/replace dialog">
