@@ -2,7 +2,7 @@
 <feature
       id="com.florian.regexfindandreplace.feature"
       label="Regex find/replace dialog"
-      version="1.0.0.qualifier"
+      version="1.0.1.qualifier"
       provider-name="Florian Ingerl">
 
    <description>

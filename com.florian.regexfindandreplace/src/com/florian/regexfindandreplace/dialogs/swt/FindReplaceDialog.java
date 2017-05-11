@@ -265,6 +265,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 * @since 3.7
 	 */
 	private HashMap fMnemonicButtonMap = new HashMap();
+	private Pattern fPattern;
 	private String fLastMatchEvaluatorCode;
 	private IMatchEvaluator fMatchEvaluator;
 	private Composite fMatchEvaluatorPanel;
@@ -1373,8 +1374,12 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			if (!isCaseSensitiveSearch())
 				flags |= Pattern.CASE_INSENSITIVE;
 			Point selection = fTarget.getSelection();
+			if(fPattern == null || !fPattern.pattern().equals(getFindString()) || fPattern.flags() != flags )
+			{
+				fPattern = Pattern.compile(getFindString(), flags);
+			}
 			return RegexUtils.getReplaceStringOfFirstMatch(wholeTargetText, selection.x,
-					Pattern.compile(getFindString(), flags), fMatchEvaluator);
+					fPattern , fMatchEvaluator);
 		}
 
 		return ""; //$NON-NLS-1$
