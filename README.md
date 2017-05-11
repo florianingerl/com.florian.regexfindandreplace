@@ -21,6 +21,6 @@ If you just work with the replacement string using dollar signs in a replacement
 
 ### Installation
 
-In Eclipse, select the menu Help -> Install New Software. Then enter the url https://github.com/florianingerl/com.florian.regexfindandreplace/raw/master/com.florian.regexfindandreplace.feature/export and hit next, accept and finish until the plugin is installed. See the following screenhot
+In Eclipse, select the menu Help -> Install New Software. Then enter the url https://github.com/florianingerl/com.florian.regexfindandreplace/raw/master/com.florian.regexfindandreplace.feature/export1.0.1 and hit next, accept and finish until the plugin is installed. See the following screenhot
 
 ![Screenhot2](screenshots/Screenshot2.PNG)
