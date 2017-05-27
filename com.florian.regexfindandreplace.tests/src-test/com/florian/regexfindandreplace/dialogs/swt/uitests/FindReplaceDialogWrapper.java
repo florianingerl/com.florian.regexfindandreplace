@@ -186,10 +186,4 @@ public class FindReplaceDialogWrapper {
 
 	private SWTBotText fJavacCompilerField;
 
-	public SWTBotText getfJavacCompilerField() {
-		if (fJavacCompilerField == null)
-			fJavacCompilerField = new SWTBotText(dialog.getfJavacCompilerField());
-		return fJavacCompilerField;
-	}
-
 }

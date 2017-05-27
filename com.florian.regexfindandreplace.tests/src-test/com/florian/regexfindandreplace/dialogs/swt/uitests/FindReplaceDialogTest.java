@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.util.Arrays;
 
 import org.eclipse.jface.dialogs.DialogSettings;
@@ -21,7 +20,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.florian.regexfindandreplace.IJavacLocator;
 import com.florian.regexfindandreplace.activators.ServiceLocator;
 import com.florian.regexfindandreplace.dialogs.swt.DialogSettingsConstants;
 import com.florian.regexfindandreplace.dialogs.swt.FindReplaceDialog;
@@ -160,7 +158,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		Mockito.verify(statusLine).setMessage(true,
 				"0 matches replaced,\nCouldNotCompileJavaSourceCodeException occured", null);
 		System.out.println(findReplaceDialog.getErrorLog().toString());
-		assertTrue(findReplaceDialog.getErrorLog().toString().contains("';' expected"));
+		assertTrue(findReplaceDialog.getErrorLog().toString().contains("Syntax error"));
 	}
 
 	@Test
@@ -639,23 +637,6 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	}
 
 	@Test
-	public void pathToJavac_initially_isSetAutomatically() {
-		IDialogSettings dialogSettings = new DialogSettings("root");
-		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
-		openFindReplaceDialog();
-
-		SWTBotButton closeButton = findReplaceDialogWrapper.getfCloseButton();
-		closeButton.click();
-
-		IDialogSettings section = dialogSettings.getSection(FindReplaceDialog.class.getName());
-		File javacFile = new File(section.get(DialogSettingsConstants.PATH_TO_JAVAC));
-
-		assertTrue(javacFile.exists() && javacFile.getName().equals("javac.exe"));
-	}
-
-	@Test
 	public void replaceAll_WithAMatchEvaluatorThatCantBeCompiled_LastMatchEvaluatorCodeIsntSavedInDialogSettings() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
@@ -728,39 +709,6 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		replaceAllButton.click();
 
 		assertEquals("Das heutige Datum is der $2/$1/${year}", textWidget.getText());
-	}
-
-	@Test
-	public void replaceAll_WhenTheJavacLocatorCouldntFindJavac_DisplaysAnAppropriateErrorMessage() {
-
-		IDialogSettings dialogSettings = new DialogSettings("root");
-		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		IJavacLocator javacLocator = Mockito.mock(IJavacLocator.class);
-		Mockito.when(javacLocator.getJavacLocation()).thenReturn(null);
-		Injector injector = Guice
-				.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine, javacLocator));
-		ServiceLocator.setInjector(injector);
-		openFindReplaceDialog();
-		updateTarget("Hallo", false);
-
-		SWTBotText javacField = findReplaceDialogWrapper.getfJavacCompilerField();
-		assertTrue(javacField.getText().equals(""));
-
-		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
-
-		findField.setText("a");
-		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
-
-		matchEvaluatorField.setText("return \"e\";");
-		SWTBotButton replaceAllButton = findReplaceDialogWrapper.getfReplaceAllButton();
-		replaceAllButton.click();
-
-		assertEquals("Hallo", textWidget.getText());
-
-		SWTBotLabel statusLabel = findReplaceDialogWrapper.getfStatusLabel();
-		assertEquals("0 matches replaced,\nNoJavaCompilerSetException occured", statusLabel.getText());
-
-		Mockito.verify(statusLine).setMessage(true, "0 matches replaced,\nNoJavaCompilerSetException occured", null);
 	}
 
 	@Test

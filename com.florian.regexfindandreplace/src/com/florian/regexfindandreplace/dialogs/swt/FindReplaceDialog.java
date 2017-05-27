@@ -13,7 +13,6 @@
  *******************************************************************************/
 package com.florian.regexfindandreplace.dialogs.swt;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -67,7 +66,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -82,7 +80,6 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 import com.florian.regexfindandreplace.CouldNotCompileJavaSourceCodeException;
 import com.florian.regexfindandreplace.ExceptionUtils;
-import com.florian.regexfindandreplace.IJavacLocator;
 import com.florian.regexfindandreplace.MatchEvaluatorException;
 import com.florian.regexfindandreplace.MatchEvaluatorFromItsFunctionBodyGenerator;
 import com.florian.regexfindandreplace.RegexUtils;
@@ -273,8 +270,6 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	private Label fMatchEvaluatorLabel;
 	private Text fMatchEvaluatorField;
 	private Label fMatchEvaluatorFlagsLabel;
-	private File fJavacCompiler;
-	private Text fJavacCompilerField;
 	private Button fUseMatchEvaluatorCheckBox;
 
 	private StringBuilder errorLog = new StringBuilder();
@@ -882,45 +877,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		setGridData(fMatchEvaluatorFlagsLabel, SWT.LEFT, true, SWT.CENTER, false);
 		((GridData) fMatchEvaluatorFlagsLabel.getLayoutData()).horizontalSpan = 2;
 
-		Composite browseJavac = createBrowseJavacPanel(fMatchEvaluatorPanel);
-		setGridData(browseJavac, SWT.FILL, true, SWT.FILL, false);
-		((GridData) browseJavac.getLayoutData()).horizontalSpan = 2;
-
 		return fMatchEvaluatorPanel;
-	}
-
-	private Composite createBrowseJavacPanel(Composite parent) {
-		Composite browseJavac = new Composite(parent, SWT.NULL);
-
-		browseJavac.setLayout(new GridLayout(3, false));
-		Label javacLabel = new Label(browseJavac, SWT.LEFT);
-		javacLabel.setText("Java compiler:");
-		setGridData(javacLabel, SWT.LEFT, false, SWT.CENTER, false);
-		fJavacCompilerField = new Text(browseJavac, SWT.BORDER);
-		setGridData(fJavacCompilerField, SWT.FILL, true, SWT.CENTER, false);
-		if (fJavacCompiler != null && fJavacCompiler.exists() && fJavacCompiler.getName().equals("javac.exe")) {
-			fJavacCompilerField.setText(fJavacCompiler.getAbsolutePath());
-		}
-		fJavacCompilerField.setEditable(false);
-
-		Button fBrowseJavacButton = new Button(browseJavac, SWT.PUSH);
-		fBrowseJavacButton.setText("Browse...");
-		fBrowseJavacButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
-				dialog.setFilterExtensions(new String[] { "*.exe" });
-				dialog.setText("Please select the appropriate java compiler (javac.exe)!");
-
-				String result = dialog.open();
-				if (result != null && result.endsWith("javac.exe")) {
-					fJavacCompiler = new File(result);
-					fJavacCompilerField.setText(fJavacCompiler.getAbsolutePath());
-					storeSettings();
-				}
-			}
-		});
-		return browseJavac;
 	}
 
 	private void setMatchEvaluatorFieldVisible(boolean visible) {
@@ -1375,12 +1332,10 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			if (!isCaseSensitiveSearch())
 				flags |= Pattern.CASE_INSENSITIVE;
 			Point selection = fTarget.getSelection();
-			if(fPattern == null || !fPattern.pattern().equals(getFindString()) || fPattern.flags() != flags )
-			{
+			if (fPattern == null || !fPattern.pattern().equals(getFindString()) || fPattern.flags() != flags) {
 				fPattern = Pattern.compile(getFindString(), flags);
 			}
-			return RegexUtils.getReplaceStringOfFirstMatch(wholeTargetText, selection.x,
-					fPattern , fMatchEvaluator);
+			return RegexUtils.getReplaceStringOfFirstMatch(wholeTargetText, selection.x, fPattern, fMatchEvaluator);
 		}
 
 		return ""; //$NON-NLS-1$
@@ -1390,11 +1345,8 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 			IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, SecurityException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if (fMatchEvaluator == null || !fMatchEvaluatorField.getText().equals(fLastMatchEvaluatorCode)) {
-			if (fJavacCompiler == null || !fJavacCompiler.exists() || !fJavacCompiler.getName().equals("javac.exe")) {
-				throw new NoJavaCompilerSetException();
-			}
-			MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator(
-					fJavacCompiler);
+
+			MatchEvaluatorFromItsFunctionBodyGenerator generator = new MatchEvaluatorFromItsFunctionBodyGenerator();
 			fMatchEvaluator = generator.getMatchEvaluatorFromItsFunctionBody(fMatchEvaluatorField.getText());
 			fLastMatchEvaluatorCode = fMatchEvaluatorField.getText();
 		}
@@ -2319,18 +2271,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		fLastMatchEvaluatorCode = s.get(DialogSettingsConstants.LAST_MATCH_EVALUATOR_CODE);
 		fUseMatchEvaluator = s.get(DialogSettingsConstants.USE_MATCH_EVALUATOR) == null
 				|| s.getBoolean(DialogSettingsConstants.USE_MATCH_EVALUATOR);
-		String temp = s.get(DialogSettingsConstants.PATH_TO_JAVAC);
-		if (temp != null && temp.endsWith("javac.exe")) {
-			fJavacCompiler = new File(temp);
-			if (!fJavacCompiler.exists())
-				fJavacCompiler = null;
-		}
-		if (fJavacCompiler == null) {
-			IJavacLocator javacLocator = (IJavacLocator) ServiceLocator.getInjector().getInstance(IJavacLocator.class);
-			fJavacCompiler = javacLocator.getJavacLocation();
-			if (fJavacCompiler != null && !fJavacCompiler.exists())
-				fJavacCompiler = null;
-		}
+
 		String[] findHistory = s.getArray(DialogSettingsConstants.FIND_HISTORY); // $NON-NLS-1$
 		if (findHistory != null) {
 			List history = getFindHistory();
@@ -2361,9 +2302,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 		s.put(DialogSettingsConstants.IS_REG_EX, fIsRegExInit); // $NON-NLS-1$
 		s.put(DialogSettingsConstants.LAST_MATCH_EVALUATOR_CODE, fLastMatchEvaluatorCode);
 		s.put(DialogSettingsConstants.USE_MATCH_EVALUATOR, fUseMatchEvaluator);
-		if (fJavacCompiler != null && fJavacCompiler.exists() && fJavacCompiler.getName().equals("javac.exe")) {
-			s.put(DialogSettingsConstants.PATH_TO_JAVAC, fJavacCompiler.getAbsolutePath());
-		}
+
 		List history = getFindHistory();
 		String findString = getFindString();
 		if (findString.length() > 0)
@@ -2495,10 +2434,6 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 
 	public Text getfMatchEvaluatorField() {
 		return fMatchEvaluatorField;
-	}
-
-	public Text getfJavacCompilerField() {
-		return fJavacCompilerField;
 	}
 
 	public Label getfMatchEvaluatorLabel() {

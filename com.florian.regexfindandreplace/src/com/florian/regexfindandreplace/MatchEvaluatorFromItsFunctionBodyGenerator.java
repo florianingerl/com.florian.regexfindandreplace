@@ -11,11 +11,10 @@
 
 package com.florian.regexfindandreplace;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,16 +23,16 @@ import java.net.URLClassLoader;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
+
 public class MatchEvaluatorFromItsFunctionBodyGenerator {
 	private static int i = 0;
-
-	private File javaCompiler;
 
 	private File sourceFile;
 	private File classFile;
 
-	public MatchEvaluatorFromItsFunctionBodyGenerator(File javaCompiler) {
-		this.javaCompiler = javaCompiler;
+	public MatchEvaluatorFromItsFunctionBodyGenerator() {
+
 	}
 
 	public Function<Matcher, String> getMatchEvaluatorFromItsFunctionBody(String functionBody)
@@ -80,27 +79,18 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 	}
 
 	private void compileClassFile() throws IOException, InterruptedException, CouldNotCompileJavaSourceCodeException {
-		ProcessBuilder processBuilder = new ProcessBuilder(javaCompiler.getAbsolutePath(),
-				sourceFile.getAbsolutePath());
-		Process p = processBuilder.start();
-		String processOutput = getProcessOutput(p);
 
-		int result = p.waitFor();
-		if (result != 0) {
-			throw new CouldNotCompileJavaSourceCodeException(processOutput);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintWriter errWriter = new PrintWriter(baos);
 
-		}
+		boolean success = BatchCompiler.compile(
+				sourceFile.getAbsolutePath() + " -d " + sourceFile.getParentFile().getAbsolutePath() + " -source 1.8",
+				new PrintWriter(new ByteArrayOutputStream()), errWriter, null);
+
+		if (!success)
+			throw new CouldNotCompileJavaSourceCodeException(baos.toString());
+
 		assert classFile != null && classFile.exists();
-	}
-
-	private String getProcessOutput(Process process) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-		StringBuilder sb = new StringBuilder();
-		String line = null;
-		while ((line = reader.readLine()) != null) {
-			sb.append(line + "\n");
-		}
-		return sb.toString();
 	}
 
 	private Function<Matcher, String> loadMatchEvaluatorFromClassFile()
@@ -111,8 +101,10 @@ public class MatchEvaluatorFromItsFunctionBodyGenerator {
 		URL[] urls = new URL[] { url };
 		URLClassLoader classLoader = new URLClassLoader(urls);
 		Class<?> c = classLoader.loadClass(getClassNameFromJavaFile(sourceFile));
-		Method method = c.getMethod("getMatchEvaluator", null);
+		Method method = c.getMethod("getMatchEvaluator");
+		// classLoader.close();
 		return (Function<Matcher, String>) method.invoke(null);
+
 	}
 
 	public static String getClassNameFromJavaFile(File javaFile) {
