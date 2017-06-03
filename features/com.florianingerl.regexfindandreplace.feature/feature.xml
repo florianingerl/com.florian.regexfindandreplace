@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="com.florian.regexfindandreplace.feature"
+      id="com.florianingerl.regexfindandreplace.feature"
       label="Regex find/replace dialog"
       version="1.0.1.qualifier"
       provider-name="Florian Ingerl">
 
    <description>
       The feature contains only one plugin. If this plugin is installed,
-you can press the key combination Ctrl + F5 (or Cmd + F5 on Mac
-computers) while a text editor is opened and a find and replace
-dialog should appear.
+you can press the key combination Ctrl + F5 while a text editor is opened and a find and replace
+dialog will appear.
    </description>
 
    <copyright>
@@ -116,7 +115,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </license>
 
    <plugin
-         id="com.florian.regexfindandreplace"
+         id="com.florianingerl.regexfindandreplace.plugin"
          download-size="0"
          install-size="0"
          version="0.0.0"

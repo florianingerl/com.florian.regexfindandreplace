@@ -1,0 +1,23 @@
+
+
+<project>
+ <modelVersion>4.0.0</modelVersion>
+ <groupId>com.florianingerl.eclipseplugins</groupId>
+ <artifactId>com.florianingerl.regexfindandreplace.aggregator</artifactId>
+ <version>1.0.1-SNAPSHOT</version>
+ <packaging>pom</packaging>
+ <parent>
+   <groupId>com.florianingerl.eclipseplugins</groupId>
+   <artifactId>com.florianingerl.regexfindandreplace.configuration</artifactId>
+   <version>1.0.1-SNAPSHOT</version>
+  <relativePath>./releng/com.florianingerl.regexfindandreplace.configuration</relativePath>
+ </parent>
+
+ <modules>
+ 	<module>bundles</module>
+ 	<module>features</module>
+ 	<module>releng</module>
+ 	<module>tests</module>
+ </modules>
+</project>
+

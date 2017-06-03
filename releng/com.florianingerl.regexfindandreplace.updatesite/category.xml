@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/com.florianingerl.regexfindandreplace.feature_1.0.1.qualifier.jar" id="com.florianingerl.regexfindandreplace.feature" version="1.0.1.qualifier">
+      <category name="com.florianingerl.regexfindandreplace.category"/>
+   </feature>
+   <category-def name="com.florianingerl.regexfindandreplace.category" label="Regex find/and replace dialog"/>
+</site>
