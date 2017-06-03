@@ -3,5 +3,9 @@
    <feature url="features/com.florianingerl.regexfindandreplace.feature_1.0.1.qualifier.jar" id="com.florianingerl.regexfindandreplace.feature" version="1.0.1.qualifier">
       <category name="com.florianingerl.regexfindandreplace.category"/>
    </feature>
-   <category-def name="com.florianingerl.regexfindandreplace.category" label="Regex find/and replace dialog"/>
+   <category-def name="com.florianingerl.regexfindandreplace.category" label="Regex find/replace dialog">
+      <description>
+         You can replace a Regex match using a match evaluator with this plugin. Press Ctrl + F5  while a text editor is opened to make a find and replace dialog appear.
+      </description>
+   </category-def>
 </site>
