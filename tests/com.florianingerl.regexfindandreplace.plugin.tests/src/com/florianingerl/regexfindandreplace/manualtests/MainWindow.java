@@ -19,9 +19,7 @@ import org.mockito.Mockito;
 
 import com.florianingerl.regexfindandreplace.activators.ServiceLocator;
 import com.florianingerl.regexfindandreplace.dialogs.swt.FindReplaceDialog;
-import com.florianingerl.regexfindandreplace.dialogs.swt.uitests.FindReplaceDialogTestingModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.florianingerl.regexfindandreplace.dialogs.swt.uitests.FindReplaceDialogTest;
 
 public class MainWindow {
 
@@ -36,8 +34,7 @@ public class MainWindow {
 
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		FindReplaceDialogTest.configureDependencies(dialogSettings, statusLine);
 
 		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {

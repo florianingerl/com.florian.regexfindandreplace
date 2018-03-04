@@ -30,10 +30,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.florianingerl.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 import com.florianingerl.regexfindandreplace.activators.ServiceLocator;
 import com.florianingerl.regexfindandreplace.dialogs.swt.uitests.FindReplaceTarget;
 import com.florianingerl.regexfindandreplace.handlers.OpenFindReplaceDialogE4Handler;
-import com.google.inject.Guice;
 
 public class OpenFindReplaceDialogE4HandlerTests {
 
@@ -45,7 +45,23 @@ public class OpenFindReplaceDialogE4HandlerTests {
 	private IFindReplaceTarget initialTarget = null;
 
 	private FakePartService partService = null;
-	private FindReplaceHandlerTestingModule testingModule;
+	
+	private static class FindReplaceDialogProvider  implements ServiceLocator.IFindReplaceDialogProvider {
+	
+	private MockFindReplaceDialog lastFindReplaceDialog;
+		@Override
+	public IFindReplaceDialog getDialog(Shell shell) {
+		// TODO Auto-generated method stub
+		lastFindReplaceDialog = new MockFindReplaceDialog(shell);
+		return lastFindReplaceDialog;
+	}
+	
+	public MockFindReplaceDialog getLastFindReplaceDialog(){
+		return lastFindReplaceDialog;
+	}
+	}
+	private FindReplaceDialogProvider findReplaceDialogProvider = null;
+	
 	private IWorkbenchPart workbenchPart;
 
 	@Before
@@ -65,9 +81,13 @@ public class OpenFindReplaceDialogE4HandlerTests {
 		display.dispose();
 	}
 
+	private void configureDependencies(){
+	
+	}
+	
 	public void initialize() {
-		testingModule = new FindReplaceHandlerTestingModule();
-		ServiceLocator.setInjector(Guice.createInjector(testingModule));
+		findReplaceDialogProvider = new FindReplaceDialogProvider();
+		ServiceLocator.setFindReplaceDialogProvider(findReplaceDialogProvider);
 
 		IWorkbenchWindow workbenchWindow = mock(IWorkbenchWindow.class);
 		if (!implementsIEditorExtension2) {
@@ -121,7 +141,7 @@ public class OpenFindReplaceDialogE4HandlerTests {
 		assertTrue(handler.canExecute(workbenchPart));
 
 		handler.execute(shell, workbenchPart);
-		MockFindReplaceDialog dialog = testingModule.getLastFindReplaceDialog();
+		MockFindReplaceDialog dialog = findReplaceDialogProvider.getLastFindReplaceDialog();
 		verify(dialog.mockDialog).create();
 		assertTrue(dialog.getShell() == shell);
 		verify(dialog.mockDialog).updateTarget(initialTarget, false, true);
@@ -138,7 +158,7 @@ public class OpenFindReplaceDialogE4HandlerTests {
 		assertTrue(handler.canExecute(workbenchPart));
 
 		handler.execute(shell, workbenchPart);
-		MockFindReplaceDialog dialog = testingModule.getLastFindReplaceDialog();
+		MockFindReplaceDialog dialog = findReplaceDialogProvider.getLastFindReplaceDialog();
 		verify(dialog.mockDialog).create();
 		assertTrue(dialog.getShell() == shell);
 		verify(dialog.mockDialog).updateTarget(initialTarget, true, true);
@@ -154,7 +174,7 @@ public class OpenFindReplaceDialogE4HandlerTests {
 		assertTrue(handler.canExecute(workbenchPart));
 
 		handler.execute(shell, workbenchPart);
-		MockFindReplaceDialog dialog = testingModule.getLastFindReplaceDialog();
+		MockFindReplaceDialog dialog = findReplaceDialogProvider.getLastFindReplaceDialog();
 		verify(dialog.mockDialog).create();
 		assertTrue(dialog.getShell() == shell);
 		verify(dialog.mockDialog).updateTarget(initialTarget, true, true);
@@ -195,7 +215,7 @@ public class OpenFindReplaceDialogE4HandlerTests {
 		assertTrue(handler.canExecute(workbenchPart));
 
 		handler.execute(shell, workbenchPart);
-		MockFindReplaceDialog dialog = testingModule.getLastFindReplaceDialog();
+		MockFindReplaceDialog dialog = findReplaceDialogProvider.getLastFindReplaceDialog();
 
 		verify(dialog.mockDialog).open();
 		dialog.close();
@@ -205,7 +225,7 @@ public class OpenFindReplaceDialogE4HandlerTests {
 		when(workbenchPart.getSite().getShell()).thenReturn(shell);
 
 		handler.execute(shell, workbenchPart);
-		MockFindReplaceDialog dialog2 = testingModule.getLastFindReplaceDialog();
+		MockFindReplaceDialog dialog2 = findReplaceDialogProvider.getLastFindReplaceDialog();
 		assertFalse(dialog == dialog2);
 
 		verify(dialog2.mockDialog).open();
@@ -222,12 +242,12 @@ public class OpenFindReplaceDialogE4HandlerTests {
 		assertTrue(handler.canExecute(workbenchPart));
 
 		handler.execute(shell, workbenchPart);
-		MockFindReplaceDialog dialog = testingModule.getLastFindReplaceDialog();
+		MockFindReplaceDialog dialog = findReplaceDialogProvider.getLastFindReplaceDialog();
 
 		verify(dialog.mockDialog).open();
 
 		handler.execute(shell, workbenchPart);
-		MockFindReplaceDialog dialog2 = testingModule.getLastFindReplaceDialog();
+		MockFindReplaceDialog dialog2 = findReplaceDialogProvider.getLastFindReplaceDialog();
 		assertTrue(dialog == dialog2);
 
 		verify(dialog2.mockDialog, Mockito.times(2)).open();
@@ -251,5 +271,7 @@ public class OpenFindReplaceDialogE4HandlerTests {
 		partService.setActivePart(workbenchPartReference);
 
 	}
+	
+	
 
 }

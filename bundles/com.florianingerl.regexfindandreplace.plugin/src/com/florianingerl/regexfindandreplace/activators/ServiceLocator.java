@@ -11,17 +11,67 @@
 
 package com.florianingerl.regexfindandreplace.activators;
 
-import com.google.inject.Injector;
+import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
+import com.florianingerl.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 
 public class ServiceLocator {
 
-	private static Injector injector;
-
-	public static Injector getInjector() {
-		return injector;
+	public interface IActiveWorkbenchWindowProvider {
+		public IWorkbenchWindow getActiveWorkbenchWindow();
 	}
 
-	public static void setInjector(Injector injector) {
-		ServiceLocator.injector = injector;
+	private static IActiveWorkbenchWindowProvider activeWorkbenchWindowProvider = null;
+
+	public static void setActiveWorkbenchWindowProvider(IActiveWorkbenchWindowProvider awwp) {
+		activeWorkbenchWindowProvider = awwp;
+	}
+
+	public static IWorkbenchWindow getActiveWorkbenchWindow() {
+		return activeWorkbenchWindowProvider.getActiveWorkbenchWindow();
+	}
+
+	public interface IFindReplaceDialogProvider {
+		public IFindReplaceDialog getDialog(Shell shell);
+	}
+
+	private static IFindReplaceDialogProvider findReplaceDialogProvider = null;
+
+	public static void setFindReplaceDialogProvider(IFindReplaceDialogProvider frdp) {
+		findReplaceDialogProvider = frdp;
+	}
+
+	public static IFindReplaceDialog getDialog(Shell shell) {
+		return findReplaceDialogProvider.getDialog(shell);
+	}
+
+	public interface IEditorStatusLineProvider {
+		public IEditorStatusLine getEditorStatusLine();
+	}
+
+	private static IEditorStatusLineProvider editorStatusLineProvider;
+
+	public static void setEditorStatusLineProvider(IEditorStatusLineProvider eslp) {
+		editorStatusLineProvider = eslp;
+	}
+
+	public static IEditorStatusLine getEditorStatusLine() {
+		return editorStatusLineProvider.getEditorStatusLine();
+	}
+
+	public interface IDialogSettingsProvider {
+		public IDialogSettings getDialogSettings();
+	}
+
+	private static IDialogSettingsProvider dialogSettingsProvider = null;
+
+	public static void setDialogSettingsProvider(IDialogSettingsProvider dsp) {
+		dialogSettingsProvider = dsp;
+	}
+
+	public static IDialogSettings getDialogSettings() {
+		return dialogSettingsProvider.getDialogSettings();
 	}
 }

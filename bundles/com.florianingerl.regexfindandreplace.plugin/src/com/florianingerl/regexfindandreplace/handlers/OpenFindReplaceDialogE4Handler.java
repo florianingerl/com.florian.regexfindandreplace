@@ -33,7 +33,6 @@ import org.eclipse.ui.texteditor.ITextEditorExtension2;
 
 import com.florianingerl.regexfindandreplace.activators.ServiceLocator;
 import com.florianingerl.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
-import com.florianingerl.regexfindandreplace.dialogs.swt.IFindReplaceDialogProvider;
 
 public class OpenFindReplaceDialogE4Handler {
 
@@ -88,8 +87,7 @@ public class OpenFindReplaceDialogE4Handler {
 		 * @since 3.3
 		 */
 		public FindReplaceDialogStub(Shell shell) {
-			fDialog = ((IFindReplaceDialogProvider) ServiceLocator.getInjector()
-					.getInstance(IFindReplaceDialogProvider.class)).getDialog(shell);
+			fDialog = ServiceLocator.getDialog(shell);
 			fDialog.create();
 			fDialog.getShell().addDisposeListener(this);
 		}

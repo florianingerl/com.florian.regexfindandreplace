@@ -15,8 +15,16 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
+import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import com.florianingerl.regexfindandreplace.dialogs.swt.FindReplaceDialog;
+import com.florianingerl.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -46,8 +54,50 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 		System.out.println("Activator was called!");
 
-		Injector injector = Guice.createInjector(new FindReplaceHandlerModule());
-		ServiceLocator.setInjector(injector);
+		configureDependencies();
+	}
+
+	public void configureDependencies() {
+		ServiceLocator.setActiveWorkbenchWindowProvider(new ServiceLocator.IActiveWorkbenchWindowProvider() {
+			@Override
+			public IWorkbenchWindow getActiveWorkbenchWindow() {
+				return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			}
+		});
+
+		ServiceLocator.setFindReplaceDialogProvider(new ServiceLocator.IFindReplaceDialogProvider() {
+			@Override
+			public IFindReplaceDialog getDialog(Shell shell) {
+				// TODO Auto-generated method stub
+				return new FindReplaceDialog(false, shell);
+			}
+		});
+
+		ServiceLocator.setDialogSettingsProvider(new ServiceLocator.IDialogSettingsProvider() {
+			@Override
+			public IDialogSettings getDialogSettings() {
+				return TextEditorPlugin.getDefault().getDialogSettings();
+			}
+		});
+
+		ServiceLocator.setEditorStatusLineProvider(new ServiceLocator.IEditorStatusLineProvider() {
+			@Override
+			public IEditorStatusLine getEditorStatusLine() {
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				if (window == null)
+					return null;
+
+				IWorkbenchPage page = window.getActivePage();
+				if (page == null)
+					return null;
+
+				IEditorPart editor = page.getActiveEditor();
+				if (editor == null)
+					return null;
+
+				return (IEditorStatusLine) editor.getAdapter(IEditorStatusLine.class);
+			}
+		});
 	}
 
 	/*
@@ -81,4 +131,5 @@ public class Activator extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
+
 }

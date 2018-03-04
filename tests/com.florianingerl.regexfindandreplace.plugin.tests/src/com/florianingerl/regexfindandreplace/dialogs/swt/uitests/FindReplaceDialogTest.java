@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
@@ -23,10 +25,24 @@ import org.mockito.Mockito;
 import com.florianingerl.regexfindandreplace.activators.ServiceLocator;
 import com.florianingerl.regexfindandreplace.dialogs.swt.DialogSettingsConstants;
 import com.florianingerl.regexfindandreplace.dialogs.swt.FindReplaceDialog;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
+
+	public static void configureDependencies(IDialogSettings dialogSettings, IEditorStatusLine editorStatusLine){
+		ServiceLocator.setDialogSettingsProvider(new ServiceLocator.IDialogSettingsProvider(){
+			@Override
+			public IDialogSettings getDialogSettings(){
+				return dialogSettings;
+			}
+		});
+		
+		ServiceLocator.setEditorStatusLineProvider(new ServiceLocator.IEditorStatusLineProvider(){
+		@Override
+		public IEditorStatusLine getEditorStatusLine(){
+			return editorStatusLine;
+		}
+}		);
+	}
 
 	@Test
 	public void replaceAll_WithAMatchEvaluator() {
@@ -35,8 +51,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		newSection.put(DialogSettingsConstants.CASE_SENSITIVE, true);
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 
 		openFindReplaceDialog();
 		updateTarget("Florian is 23 years old. His sister is 2 years older. She is 25 years old!", false);
@@ -79,8 +94,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		newSection.put(DialogSettingsConstants.CASE_SENSITIVE, false);
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine);
 		openFindReplaceDialog();
 		updateTarget("The word Maintenance doesn't start with a capital letter", false);
 		SWTBotCheckBox isRegExCheckBox = findReplaceDialogWrapper.getfIsRegExCheckBox();
@@ -115,8 +129,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.USE_MATCH_EVALUATOR, false);
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("Florian is 23 years old. His sister is 2 years older. She is 25 years old!", false);
 		SWTBotCheckBox isRegExCheckBox = findReplaceDialogWrapper.getfIsRegExCheckBox();
@@ -142,8 +155,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("Hello World", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -168,8 +180,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		newSection.put(DialogSettingsConstants.CASE_SENSITIVE, true);
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("A100BHermannC200D", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -191,8 +202,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	public void replace_WithAMatchEvaluatorWhereAnExceptionIsThrownByTheMatchEvaluator_AnAppropriateErrorMessageIsDisplayed() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("A100BHermannC200D", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -214,8 +224,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	public void replaceFindNext_WithAMatchEvaluatorWhereAnExceptionIsThrownByTheMatchEvaluator_AnAppropriateErrorMessageIsDisplayed() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("A100BHermannC200D", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -240,8 +249,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		newSection.put(DialogSettingsConstants.CASE_SENSITIVE, true);
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("A100B200C", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -280,8 +288,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		newSection.put(DialogSettingsConstants.CASE_SENSITIVE, true);
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("A100B200C", false);
 		textWidget.selectRange(0, textWidget.getText().length(), 0);
@@ -328,8 +335,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("In Deutschland leben 80000000 Menschen!Auf der Welt leben 7000000000 Menschen", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -353,8 +359,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		newSection.put(DialogSettingsConstants.USE_MATCH_EVALUATOR, false);
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("In Deutschland leben 80000000 Menschen!Auf der Welt leben 7000000000 Menschen", false);
 		SWTBotCombo replaceField = findReplaceDialogWrapper.getfReplaceField();
@@ -376,8 +381,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("17_{hex}+10_{bin}=27", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -399,8 +403,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("x17=17 and 010=10", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -420,13 +423,12 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	public void replaceAll_WithAMatchEvaluatorWhereANamedGroupIsReferenced1_TheNamedGroupIsRecognized() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("Heute ist der 27.08.2016", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
 		matchEvaluatorField.setText(
-				"String [] monthNames = {\"Januar\", \"Februar\", \"März\", \"April\", \"Mai\", \"Juni\", \"Juli\", \"August\", \"September\", \"Oktober\", \"November\", \"Dezember\"};\r\n"
+				"String [] monthNames = {\"Januar\", \"Februar\", \"Mï¿½rz\", \"April\", \"Mai\", \"Juni\", \"Juli\", \"August\", \"September\", \"Oktober\", \"November\", \"Dezember\"};\r\n"
 						+ "		return match.group(\"day\") + \". \" + monthNames[Integer.parseInt( match.group(\"month\") ) - 1 ] + \" \" + match.group(\"year\");");
 		SWTBotCombo findField = findReplaceDialogWrapper.getfFindField();
 		findField.setText("(?<day>\\d{2})\\.(?<month>\\d{2})\\.(?<year>\\d{4})");
@@ -442,8 +444,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	public void replaceAll_WithAMatchEvaluatorThatHasAnInitializerAndMultipleMethodsAndFields_TheMatchEvaluatorStillCompiles() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("27.08.2016 02.05.2017 03.09.2016 01.02.2016", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -472,8 +473,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	public void replaceAll_WithAMatchEvaluatorWhereANamedGroupIsReferenced2_TheNamedGroupIsRecognized() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("public static final int caseInsensitive = 0;" + "public static final int canonEq = 1;"
 				+ "public static final int unicodeCase =2;" + "public static final int unixLines = 3;"
@@ -505,8 +505,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("A100B200D30", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();
@@ -540,8 +539,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("Hello World!", false);
 		checkDefaultSettings();
@@ -582,8 +580,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget(
 				"Today is the 14th August\n16! Florian is 23 years old. His sister is 2 years older. She is 25 years old!",
@@ -614,8 +611,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 		IDialogSettings newSection = dialogSettings.addNewSection(FindReplaceDialog.class.getName());
 		newSection.put(DialogSettingsConstants.PATH_TO_JAVAC, "C:/Program Files/Java/jdk1.8.0_92/bin/javac.exe");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("A\nB\nCA\nB\nC", false);
 
@@ -640,8 +636,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	public void replaceAll_WithAMatchEvaluatorThatCantBeCompiled_LastMatchEvaluatorCodeIsntSavedInDialogSettings() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("Florian is 23 years old!", false);
 
@@ -664,8 +659,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	public void replaceAll_WithAMatchEvaluatorThatChanged_TheNewMatchEvaluatorIsAlsoCompiled() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("Florian is 23 years old. His sister is 2 years older. She is 25 years old.", false);
 
@@ -694,8 +688,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	public void replaceAll_WithAMatchEvaluatorWhereTheReplaceStringContainsDollarSignsWithDigitsBehind_TheDollarSignsAreNotInterpretedAsGroups() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("Das heutige Datum is der 24.08.2016", false);
 
@@ -715,8 +708,7 @@ public class FindReplaceDialogTest extends AbstractFindReplaceDialogTest {
 	public void replaceAll_WithAMatchEvaluatorWhereMULTILINEModeMatters_ReplacesAllMatchesCorrectly() {
 		IDialogSettings dialogSettings = new DialogSettings("root");
 		IEditorStatusLine statusLine = Mockito.mock(IEditorStatusLine.class);
-		Injector injector = Guice.createInjector(new FindReplaceDialogTestingModule(dialogSettings, statusLine));
-		ServiceLocator.setInjector(injector);
+		configureDependencies(dialogSettings, statusLine );
 		openFindReplaceDialog();
 		updateTarget("Florian is\n23 years old.", false);
 		SWTBotText matchEvaluatorField = findReplaceDialogWrapper.getfMatchEvaluatorField();

@@ -3,11 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: com.florianingerl.regexfindandreplace.plugin
 Bundle-SymbolicName: com.florianingerl.regexfindandreplace.plugin;singleton:=true
 Bundle-Version: 1.0.1.qualifier
-Bundle-ClassPath: .,
- lib/aopalliance.jar,
- lib/guava-19.0.jar,
- lib/guice-snapshot.jar,
- lib/javax.inject.jar
+Bundle-ClassPath: .
 Bundle-Activator: com.florianingerl.regexfindandreplace.activators.Activator
 Bundle-Vendor: Florian Ingerl
 Require-Bundle: org.eclipse.ui,

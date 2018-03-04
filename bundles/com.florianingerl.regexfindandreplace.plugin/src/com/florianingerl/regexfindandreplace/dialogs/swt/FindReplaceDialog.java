@@ -1662,7 +1662,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 * @return the status line manager of the active editor
 	 */
 	private IEditorStatusLine getStatusLineManager() {
-		return ServiceLocator.getInjector().getInstance(IEditorStatusLine.class);
+		return ServiceLocator.getEditorStatusLine();
 	}
 
 	/**
@@ -2224,7 +2224,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 * @return the dialog settings to be used
 	 */
 	private IDialogSettings getDialogSettings() {
-		IDialogSettings settings = ServiceLocator.getInjector().getInstance(IDialogSettings.class);
+		IDialogSettings settings = ServiceLocator.getDialogSettings();
 		fDialogSettings = settings.getSection(getClass().getName());
 		if (fDialogSettings == null)
 			fDialogSettings = settings.addNewSection(getClass().getName());
@@ -2238,7 +2238,7 @@ public class FindReplaceDialog extends Dialog implements IFindReplaceDialog {
 	 */
 	protected IDialogSettings getDialogBoundsSettings() {
 		String sectionName = getClass().getName() + "_dialogBounds"; //$NON-NLS-1$
-		IDialogSettings settings = ServiceLocator.getInjector().getInstance(IDialogSettings.class);
+		IDialogSettings settings = ServiceLocator.getDialogSettings();
 		IDialogSettings section = settings.getSection(sectionName);
 		if (section == null)
 			section = settings.addNewSection(sectionName);
