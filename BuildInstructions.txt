@@ -1,0 +1,6 @@
+Use
+mvn clean verify
+to build this plugin!
+
+The update site is created under
+.\releng\com.florianingerl.regexfindandreplace.updatesite\target\repository
