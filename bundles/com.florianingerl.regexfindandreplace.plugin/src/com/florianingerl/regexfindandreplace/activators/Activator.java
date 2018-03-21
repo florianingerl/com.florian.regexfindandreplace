@@ -32,7 +32,7 @@ import com.florianingerl.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "com.florianingerl.examples.helloworld"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "com.florianingerl.regexfindandreplace.plugin"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
