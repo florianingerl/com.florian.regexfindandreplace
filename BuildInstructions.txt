@@ -2,5 +2,7 @@ Use
 mvn clean verify
 to build this plugin!
 
-The update site is created under
-.\releng\com.florianingerl.regexfindandreplace.updatesite\target\repository
+Use
+mvn clean deploy
+to make a new release!
+This build will prompt you for the password of the "florianingerl"-GitHub-Account!
