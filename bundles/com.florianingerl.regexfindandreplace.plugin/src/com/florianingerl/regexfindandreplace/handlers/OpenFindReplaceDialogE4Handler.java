@@ -272,6 +272,7 @@ public class OpenFindReplaceDialogE4Handler {
 
 	@Execute
 	public void execute(Shell shell, IWorkbenchPart workbenchPart) {
+		System.out.println("Handler was called!");
 		if (!canExecute(workbenchPart))
 			return;
 

@@ -11,5 +11,51 @@
 	<version>1.0.1-SNAPSHOT</version>
 	<packaging>eclipse-repository</packaging>
 
+	<build>
+
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.6.0</version>
+				<executions>
+					<execution>
+						<id>compilenewreleasemaker</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>mvn</executable>
+							<workingDirectory>${project.basedir}/newreleasemaker</workingDirectory>
+							<arguments>
+								<argument>package</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>runnewreleasemaker</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>java</executable>
+							<workingDirectory>${project.basedir}/newreleasemaker/target</workingDirectory>
+							<arguments>
+								<argument>-jar</argument>
+								<argument>newreleasemaker-jar-with-dependencies.jar</argument>
+								<argument>${project.basedir}/../../</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
+
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
 

@@ -2,6 +2,7 @@ package com.florianingerl.regexfindandreplace.newreleasemaker;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Scanner;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.CommitCommand;
