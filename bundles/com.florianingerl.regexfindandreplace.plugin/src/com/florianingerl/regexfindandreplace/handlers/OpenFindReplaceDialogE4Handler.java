@@ -15,6 +15,11 @@
 
 package com.florianingerl.regexfindandreplace.handlers;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
 import org.eclipse.e4.core.di.annotations.CanExecute;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.jface.dialogs.IPageChangedListener;
@@ -272,7 +277,6 @@ public class OpenFindReplaceDialogE4Handler {
 
 	@Execute
 	public void execute(Shell shell, IWorkbenchPart workbenchPart) {
-		System.out.println("Handler was called!");
 		if (!canExecute(workbenchPart))
 			return;
 
