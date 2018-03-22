@@ -11,24 +11,18 @@
 
 package com.florianingerl.regexfindandreplace.activators;
 
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.osgi.framework.BundleContext;
-
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
-import org.eclipse.ui.texteditor.IEditorStatusLine;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
+import org.osgi.framework.BundleContext;
+
 import com.florianingerl.regexfindandreplace.dialogs.swt.FindReplaceDialog;
 import com.florianingerl.regexfindandreplace.dialogs.swt.IFindReplaceDialog;
 
