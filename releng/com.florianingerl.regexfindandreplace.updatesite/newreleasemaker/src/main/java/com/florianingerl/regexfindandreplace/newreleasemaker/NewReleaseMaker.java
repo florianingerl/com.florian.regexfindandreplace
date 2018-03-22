@@ -23,6 +23,8 @@ import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.URIish;
 
+import javax.swing.JOptionPane;
+
 public class NewReleaseMaker {
 
 	public static void main(String[] args) throws IOException, NoFilepatternException, GitAPIException {
@@ -31,7 +33,7 @@ public class NewReleaseMaker {
 					"Usage: newreleasemaker local repository for remote https://github.com/florianingerl/com.florian.regexfindandreplace");
 			return;
 		}
-
+		
 		System.out.println("NewReleaseMaker executed!");
 		
 		NewReleaseMaker nrm = new NewReleaseMaker(new File(args[0]));
@@ -133,9 +135,7 @@ public class NewReleaseMaker {
 					if (item instanceof CredentialItem.Username) {
 						((CredentialItem.Username) item).setValue("florianingerl");
 					} else if (item instanceof CredentialItem.Password) {
-						Scanner scanner = new Scanner(System.in);
-						System.out.println("Password:");
-						String password = scanner.nextLine();
+						String password = JOptionPane.showInputDialog(null, "What's your password for GitHub?");
 						((CredentialItem.Password) item).setValue(password.toCharArray());
 					} else {
 						return false;
